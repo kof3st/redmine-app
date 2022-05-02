@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">RedmineComposeApp</string>
+    <string name="issues">Задачи</string>
+    <string name="auth">Авторизация</string>
+    <string name="projects">Проекты</string>
 </resources>
