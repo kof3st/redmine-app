@@ -1,16 +1,14 @@
-package me.kofesst.android.redminecomposeapp
+package me.kofesst.android.redminecomposeapp.feature.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.*
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,10 +21,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
-import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
-import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.issues.IssuesScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.project.ProjectsScreen
 import me.kofesst.android.redminecomposeapp.ui.theme.RedmineComposeAppTheme
 
 @AndroidEntryPoint
@@ -40,12 +34,28 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.background
                 ) {
                     val scaffoldState = rememberScaffoldState()
+
                     val navController = rememberNavController()
+                    val backStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = backStackEntry?.destination?.route
+                    var currentScreen by remember { mutableStateOf<Screen>(Screen.Auth) }
+                    currentScreen = Screen.all.firstOrNull { screen ->
+                        screen.route == currentRoute
+                    } ?: Screen.Auth
 
                     Scaffold(
                         scaffoldState = scaffoldState,
+                        topBar = {
+                            TopBar(
+                                currentScreen = currentScreen,
+                                navController = navController
+                            )
+                        },
                         bottomBar = {
-                            BottomNavigationBar(navController = navController)
+                            BottomNavigationBar(
+                                currentScreen = currentScreen,
+                                navController = navController
+                            )
                         }
                     ) {
                         ScreenNavHost(navController)
@@ -57,43 +67,61 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun TopBar(
+    currentScreen: Screen,
+    navController: NavController
+) {
+    TopAppBar(
+        title = { Text(text = stringResource(currentScreen.nameRes)) },
+        navigationIcon = if (currentScreen.hasBackButton) {
+            {
+                IconButton(onClick = { navController.navigateUp() }) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null
+                    )
+                }
+            }
+        } else {
+            null
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
 fun ScreenNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
         startDestination = Screen.Auth.route
     ) {
-        composable(route = Screen.Auth.route) {
-            AuthScreen(navController = navController)
-        }
-        composable(route = Screen.Issues.route) {
-            IssuesScreen()
-        }
-        composable(route = Screen.Projects.route) {
-            ProjectsScreen()
+        Screen.all.forEach { screen ->
+            composable(
+                route = screen.route,
+                arguments = screen.args
+            ) { entry ->
+                screen.getContent(
+                    navController = navController,
+                    navBackStackEntry = entry
+                )()
+            }
         }
     }
 }
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavController,
-    modifier: Modifier = Modifier
+    currentScreen: Screen,
+    navController: NavController
 ) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = backStackEntry?.destination?.route
-    val showBar = Screen.bottomBarScreens.any { it.route == currentRoute }
-
     AnimatedVisibility(
-        visible = showBar,
+        visible = currentScreen.hasBottomBar,
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut()
     ) {
-        BottomNavigation(
-            modifier = modifier,
-            elevation = 5.dp
-        ) {
+        BottomNavigation(elevation = 5.dp) {
             Screen.bottomBarScreens.forEach { screen ->
-                val selected = screen.route == currentRoute
+                val selected = screen.route == currentScreen.route
                 BottomNavigationItem(
                     selected = selected,
                     onClick = {

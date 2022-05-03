@@ -7,40 +7,47 @@ import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
-
-// Pair#first - ключ аргумента
-// Pair#second - обязательный ли аргумент
-typealias ScreenArg = Pair<String, Boolean>
+import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issues.IssuesScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.project.ProjectsScreen
 
 sealed class Screen(
     route: String,
+    val args: List<NamedNavArgument> = listOf(),
     @StringRes val nameRes: Int,
     val icon: ImageVector,
-    val showScaffold: Boolean = false,
-    args: List<ScreenArg> = listOf()
+    val hasBottomBar: Boolean = false,
+    val hasBackButton: Boolean = false
 ) {
     companion object {
-        val bottomBarScreens
+        val all
             get() = listOf(
+                Auth,
                 Issues,
                 Projects
             )
+
+        val bottomBarScreens
+            get() = all.filter { it.hasBottomBar }
     }
 
     var route: String = buildString {
         append(route)
-        args.filter { it.second }.forEach {
-            append("/${it.first}")
+        args.filter { !it.argument.isNullable }.forEach {
+            append("/${it.name}")
         }
 
-        args.filter { !it.second }.also {
+        args.filter { it.argument.isNullable }.also {
             if (it.isEmpty()) return@also
 
             append(
                 "?${
                     it.joinToString("&") { arg ->
-                        "${arg.first}={${arg.first}}"
+                        "${arg.name}={${arg.name}}"
                     }
                 }"
             )
@@ -53,23 +60,49 @@ sealed class Screen(
         }
     }
 
+    abstract fun getContent(
+        navController: NavController,
+        navBackStackEntry: NavBackStackEntry
+    ): @Composable () -> Unit
+
     object Auth : Screen(
         route = "auth-screen",
         nameRes = R.string.auth,
         icon = Icons.Outlined.AccountCircle
-    )
+    ) {
+        override fun getContent(
+            navController: NavController,
+            navBackStackEntry: NavBackStackEntry
+        ): @Composable () -> Unit {
+            return { AuthScreen(navController = navController) }
+        }
+    }
 
     object Issues : Screen(
         route = "issues-screen",
         nameRes = R.string.issues,
         icon = Icons.Outlined.List,
-        showScaffold = true
-    )
+        hasBottomBar = true
+    ) {
+        override fun getContent(
+            navController: NavController,
+            navBackStackEntry: NavBackStackEntry
+        ): @Composable () -> Unit {
+            return { IssuesScreen() }
+        }
+    }
 
     object Projects : Screen(
         route = "projects-screen",
         nameRes = R.string.projects,
         icon = Icons.Outlined.Person,
-        showScaffold = true
-    )
+        hasBottomBar = true
+    ) {
+        override fun getContent(
+            navController: NavController,
+            navBackStackEntry: NavBackStackEntry
+        ): @Composable () -> Unit {
+            return { ProjectsScreen() }
+        }
+    }
 }
