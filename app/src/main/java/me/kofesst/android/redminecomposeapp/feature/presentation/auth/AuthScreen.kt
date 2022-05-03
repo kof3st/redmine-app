@@ -1,10 +1,12 @@
 package me.kofesst.android.redminecomposeapp.feature.presentation.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -12,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
+import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.domain.util.ValidationEvent
 import me.kofesst.android.redminecomposeapp.feature.presentation.OutlinedValidatedTextField
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
@@ -29,6 +32,13 @@ fun AuthScreen(
                 }
             }
         }
+    }
+
+
+    val loadingState by viewModel.loadingState
+    val isLoading = loadingState.state == LoadingResult.State.RUNNING
+    if (isLoading) {
+        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     }
 
     val formState = viewModel.formState
