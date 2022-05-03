@@ -6,10 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import me.kofesst.android.redminecomposeapp.feature.data.repository.RedmineRepositoryImpl
 import me.kofesst.android.redminecomposeapp.feature.domain.repository.RedmineRepository
-import me.kofesst.android.redminecomposeapp.feature.domain.usecase.GetCurrentUser
-import me.kofesst.android.redminecomposeapp.feature.domain.usecase.GetProjects
-import me.kofesst.android.redminecomposeapp.feature.domain.usecase.UseCases
-import me.kofesst.android.redminecomposeapp.feature.domain.usecase.ValidateForEmptyField
+import me.kofesst.android.redminecomposeapp.feature.domain.usecase.*
 import me.kofesst.android.redminecomposeapp.feature.domain.util.UserHolder
 import javax.inject.Singleton
 
@@ -35,6 +32,8 @@ object AppModule {
         return UseCases(
             getCurrentUser = GetCurrentUser(repository),
             getProjects = GetProjects(repository),
+            getIssues = GetIssues(repository),
+            getIssueDetails = GetIssueDetails(repository),
             validateForEmptyField = ValidateForEmptyField()
         )
     }

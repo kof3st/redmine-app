@@ -10,7 +10,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.*
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.issues.IssuesScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issue.item.IssueScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.IssuesScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.project.item.ProjectScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.project.list.ProjectsScreen
 
@@ -27,6 +28,7 @@ sealed class Screen(
             get() = listOf(
                 Auth,
                 Issues,
+                Issue,
                 Projects,
                 Project
             )
@@ -90,7 +92,32 @@ sealed class Screen(
             navController: NavController,
             navBackStackEntry: NavBackStackEntry
         ): @Composable () -> Unit {
-            return { IssuesScreen() }
+            return { IssuesScreen(navController = navController) }
+        }
+    }
+
+    object Issue : Screen(
+        route = "issue-screen",
+        nameRes = R.string.issue_details,
+        icon = Icons.Outlined.List,
+        hasBackButton = true,
+        args = listOf(
+            navArgument("issueId") {
+                type = NavType.IntType
+                nullable = false
+            }
+        )
+    ) {
+        override fun getContent(
+            navController: NavController,
+            navBackStackEntry: NavBackStackEntry
+        ): @Composable () -> Unit {
+            return {
+                IssueScreen(
+                    issueId = navBackStackEntry.arguments?.getInt("issueId") ?: -1,
+                    navController = navController
+                )
+            }
         }
     }
 

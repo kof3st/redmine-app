@@ -4,4 +4,7 @@
     <string name="auth">Авторизация</string>
     <string name="projects">Проекты</string>
     <string name="project_details">Детали проекта</string>
+    <string name="issue_details">Детали задачи</string>
+    <string name="assigned_to_me">Требует внимания</string>
+    <string name="owned_issues">Мои задачи</string>
 </resources>

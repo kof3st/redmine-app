@@ -1,6 +1,7 @@
 package me.kofesst.android.redminecomposeapp.feature.data.repository
 
 import com.google.gson.GsonBuilder
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
 import me.kofesst.android.redminecomposeapp.feature.data.remote.RedmineApi
 import me.kofesst.android.redminecomposeapp.feature.domain.model.CurrentUser
@@ -27,6 +28,20 @@ class RedmineRepositoryImpl(
         return handleResponse(userHolder.host) { api ->
             api.getProjects(userHolder.apiKey)
         }.projects
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getIssues(): List<Issue> {
+        return handleResponse(userHolder.host) { api ->
+            api.getIssues(userHolder.apiKey)
+        }.issues
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getIssueDetails(issueId: Int): Issue {
+        return handleResponse(userHolder.host) { api ->
+            api.getIssueDetails(userHolder.apiKey, issueId)
+        }.issue
     }
 
     @Throws(Exception::class)
