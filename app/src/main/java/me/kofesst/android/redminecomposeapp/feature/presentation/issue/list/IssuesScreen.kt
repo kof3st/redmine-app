@@ -65,20 +65,34 @@ fun IssuesScreen(
                     )
                 }
             }
-            LazyColumn(
-                state = rememberLazyListState(),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                itemsIndexed(issues) { _, issue ->
-                    IssueItem(issue) {
-                        navController.navigate(
-                            Screen.Issue.withArgs(
-                                "issueId" to issue.id
-                            )
+            IssuesColumn(
+                issues = issues,
+                navController = navController
+            )
+        }
+    }
+}
+
+@Composable
+fun IssuesColumn(
+    issues: List<Issue>,
+    navController: NavController
+) {
+    LazyColumn(
+        state = rememberLazyListState(),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        itemsIndexed(issues) { _, issue ->
+            IssueItem(
+                issue = issue,
+                onItemClick = {
+                    navController.navigate(
+                        Screen.Issue.withArgs(
+                            "issueId" to issue.id
                         )
-                    }
+                    )
                 }
-            }
+            )
         }
     }
 }
