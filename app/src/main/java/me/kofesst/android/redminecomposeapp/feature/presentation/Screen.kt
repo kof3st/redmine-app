@@ -7,13 +7,12 @@ import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.NamedNavArgument
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
+import androidx.navigation.*
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.issues.IssuesScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.project.ProjectsScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.project.item.ProjectScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.project.list.ProjectsScreen
 
 sealed class Screen(
     route: String,
@@ -28,7 +27,8 @@ sealed class Screen(
             get() = listOf(
                 Auth,
                 Issues,
-                Projects
+                Projects,
+                Project
             )
 
         val bottomBarScreens
@@ -38,7 +38,7 @@ sealed class Screen(
     var route: String = buildString {
         append(route)
         args.filter { !it.argument.isNullable }.forEach {
-            append("/${it.name}")
+            append("/{${it.name}}")
         }
 
         args.filter { it.argument.isNullable }.also {
@@ -56,7 +56,9 @@ sealed class Screen(
 
     fun withArgs(vararg args: Pair<String, Any>): String {
         return args.fold(route) { acc, (key, value) ->
-            acc.replace("{$key}", value.toString(), true)
+            acc
+                .replace("{$key}", value.toString(), true)
+                .replace(key, value.toString(), true)
         }
     }
 
@@ -102,7 +104,32 @@ sealed class Screen(
             navController: NavController,
             navBackStackEntry: NavBackStackEntry
         ): @Composable () -> Unit {
-            return { ProjectsScreen() }
+            return { ProjectsScreen(navController = navController) }
+        }
+    }
+
+    object Project : Screen(
+        route = "project-screen",
+        nameRes = R.string.project_details,
+        icon = Icons.Outlined.Person,
+        hasBackButton = true,
+        args = listOf(
+            navArgument("projectId") {
+                type = NavType.IntType
+                nullable = false
+            }
+        )
+    ) {
+        override fun getContent(
+            navController: NavController,
+            navBackStackEntry: NavBackStackEntry
+        ): @Composable () -> Unit {
+            return {
+                ProjectScreen(
+                    projectId = navBackStackEntry.arguments?.getInt("projectId") ?: -1,
+                    navController = navController
+                )
+            }
         }
     }
 }

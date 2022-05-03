@@ -3,4 +3,5 @@
     <string name="issues">Задачи</string>
     <string name="auth">Авторизация</string>
     <string name="projects">Проекты</string>
+    <string name="project_details">Детали проекта</string>
 </resources>

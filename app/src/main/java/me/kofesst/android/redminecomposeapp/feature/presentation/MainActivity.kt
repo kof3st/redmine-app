@@ -58,7 +58,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                     ) {
-                        ScreenNavHost(navController)
+                        ScreenNavHost(
+                            navController = navController,
+                            paddingValues = it
+                        )
                     }
                 }
             }
@@ -90,10 +93,16 @@ fun TopBar(
 }
 
 @Composable
-fun ScreenNavHost(navController: NavHostController) {
+fun ScreenNavHost(
+    navController: NavHostController,
+    paddingValues: PaddingValues
+) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Auth.route
+        startDestination = Screen.Auth.route,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
     ) {
         Screen.all.forEach { screen ->
             composable(
