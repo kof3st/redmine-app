@@ -23,6 +23,7 @@ data class Issue(
     val parent: Parent?,
     var priority: Priority,
     val project: Project,
+    val spent_hours: Double,
     val start_date: Date,
     val status: Status,
     var subject: String,

@@ -1,6 +1,32 @@
 package me.kofesst.android.redminecomposeapp.feature.domain.util
 
+import java.text.DecimalFormat
 import java.util.*
+
+fun Double.formatHours(): String {
+    val formatter = DecimalFormat()
+    formatter.maximumFractionDigits = 1
+    formatter.minimumFractionDigits = 0
+
+    val intPart = this.toInt()
+    val suffix: String = when {
+        intPart == 1 && this > 1.0 -> {
+            "часа" // 1.3 часа
+        }
+        intPart in 10..19 -> {
+            "часов" // 15 часов
+        }
+        else -> {
+            when (intPart % 10) {
+                1 -> "час"
+                in 2..4 -> "часа" // 22 часа
+                else -> "часов" // 25 часов
+            }
+        }
+    }
+
+    return "${formatter.format(this)} $suffix"
+}
 
 fun Date.formatDate(showTime: Boolean = false): String {
     val calendar = Calendar.getInstance()

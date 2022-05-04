@@ -29,6 +29,7 @@ import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.domain.util.formatDate
+import me.kofesst.android.redminecomposeapp.feature.domain.util.formatHours
 import me.kofesst.android.redminecomposeapp.feature.domain.util.getInfoText
 import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
@@ -224,7 +225,8 @@ fun DetailsSection(issue: Issue) {
         DetailsRow(name = "Исполнитель", value = issue.assigned_to?.name ?: "-")
         DetailsRow(name = "Статус", value = issue.status.name)
         DetailsRow(name = "Приоритет", value = issue.priority.name)
-        DetailsRow(name = "Затраченное время", value = issue.estimated_hours.toString())
+        DetailsRow(name = "Оценочное время", value = issue.estimated_hours.formatHours())
+        DetailsRow(name = "Затраченное время", value = issue.spent_hours.formatHours())
         DetailsRow(name = "Дата начала", value = issue.start_date.formatDate())
         DetailsRow(name = "Дата обновления", value = issue.updated_on.formatDate(showTime = true))
         DetailsRow(name = "Дедлайн", value = "TODO")
