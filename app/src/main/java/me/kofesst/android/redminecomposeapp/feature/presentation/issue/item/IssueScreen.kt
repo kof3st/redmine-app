@@ -25,8 +25,12 @@ import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.ChildIssue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
+import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
+import me.kofesst.android.redminecomposeapp.feature.domain.util.getInfoText
 import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
+import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
 
@@ -44,6 +48,7 @@ fun IssueScreen(
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
     val issue by viewModel.issue.collectAsState()
+    val statuses by viewModel.statuses.collectAsState()
 
     AnimatedVisibility(
         visible = issue != null,
@@ -76,7 +81,61 @@ fun IssueScreen(
                             navController = navController
                         )
                     }
+                    if (issue.journals.isNotEmpty()) {
+                        Divider(modifier = Modifier.padding(vertical = 10.dp))
+                        JournalsSection(
+                            issue = issue,
+                            statuses = statuses
+                        )
+                    }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun JournalsSection(
+    issue: Issue,
+    statuses: List<Status>
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        issue.journals.forEach { journal ->
+            JournalItem(journal, statuses)
+        }
+    }
+}
+
+@Composable
+fun JournalItem(
+    journal: Journal,
+    statuses: List<Status>
+) {
+    DefaultCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(15.dp)
+        ) {
+            Text(
+                text = "Изменения №${journal.id}",
+                style = MaterialTheme.typography.body1
+            )
+            journal.notes?.run {
+                Text(
+                    text = this,
+                    style = MaterialTheme.typography.body2
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            journal.details.forEach { detail ->
+                Text(
+                    text = detail.getInfoText(statuses),
+                    style = MaterialTheme.typography.body2
+                )
             }
         }
     }
