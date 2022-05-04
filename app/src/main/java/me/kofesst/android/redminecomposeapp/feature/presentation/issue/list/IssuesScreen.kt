@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Status
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueFilterState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueSortState

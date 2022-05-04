@@ -4,6 +4,7 @@ import com.google.gson.GsonBuilder
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.remote.RedmineApi
 import me.kofesst.android.redminecomposeapp.feature.domain.model.CurrentUser
 import me.kofesst.android.redminecomposeapp.feature.domain.repository.RedmineRepository
@@ -50,6 +51,13 @@ class RedmineRepositoryImpl(
         return handleResponse(userHolder.host) { api ->
             api.getTrackers(userHolder.apiKey)
         }.trackers
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getStatuses(): List<Status> {
+        return handleResponse(userHolder.host) { api ->
+            api.getStatuses(userHolder.apiKey)
+        }.issue_statuses
     }
 
     @Throws(Exception::class)

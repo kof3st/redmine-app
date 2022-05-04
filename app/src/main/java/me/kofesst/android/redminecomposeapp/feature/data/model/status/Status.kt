@@ -1,4 +1,4 @@
-package me.kofesst.android.redminecomposeapp.feature.data.model.issue
+package me.kofesst.android.redminecomposeapp.feature.data.model.status
 
 data class Status(
     val id: Int,

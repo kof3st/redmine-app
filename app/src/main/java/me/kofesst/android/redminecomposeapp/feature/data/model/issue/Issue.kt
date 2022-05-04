@@ -3,6 +3,7 @@ package me.kofesst.android.redminecomposeapp.feature.data.model.issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.feature.data.model.CustomField
 import me.kofesst.android.redminecomposeapp.feature.data.model.attachment.Attachment
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import java.util.*
 
 data class Issue(

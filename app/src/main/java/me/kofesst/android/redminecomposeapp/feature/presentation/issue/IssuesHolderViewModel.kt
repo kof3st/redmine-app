@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Status
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.domain.usecase.UseCases
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueFilterState

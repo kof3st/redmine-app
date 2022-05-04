@@ -3,6 +3,7 @@ package me.kofesst.android.redminecomposeapp.feature.domain.repository
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.model.CurrentUser
 
 interface RedmineRepository {
@@ -16,4 +17,6 @@ interface RedmineRepository {
     suspend fun getIssueDetails(issueId: Int): Issue
 
     suspend fun getTrackers(): List<Tracker>
+
+    suspend fun getStatuses(): List<Status>
 }

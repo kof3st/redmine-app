@@ -1,8 +1,5 @@
 package me.kofesst.android.redminecomposeapp.feature.data.model.journal
 
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Status
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
-
 data class Detail(
     val name: String,
     val new_value: String,
