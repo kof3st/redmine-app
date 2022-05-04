@@ -1,9 +1,9 @@
 package me.kofesst.android.redminecomposeapp.feature.presentation.auth
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.domain.util.ValidationEvent
+import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.OutlinedValidatedTextField
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
 
@@ -43,37 +44,63 @@ fun AuthScreen(
     val formState = viewModel.formState
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-        OutlinedValidatedTextField(
-            value = formState.host,
-            onValueChange = { viewModel.onFormEvent(AuthFormEvent.HostChanged(it)) },
-            errorMessage = formState.hostError,
-            placeholderText = "Хост",
-            leadingIcon = painterResource(R.drawable.ic_host_24),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedValidatedTextField(
-            value = formState.apiKey,
-            onValueChange = { viewModel.onFormEvent(AuthFormEvent.ApiKeyChanged(it)) },
-            errorMessage = formState.apiKeyError,
-            placeholderText = "API-ключ",
-            leadingIcon = painterResource(R.drawable.ic_api_key_24),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedButton(
-            onClick = {
-                viewModel.onFormEvent(AuthFormEvent.Submit)
-            },
-            modifier = Modifier.fillMaxWidth()
+        DefaultCard(
+            cornerRadius = 20.dp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
         ) {
-            Text(text = "Отправить запрос")
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                Text(
+                    text = "Авторизация",
+                    style = MaterialTheme.typography.h5
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedValidatedTextField(
+                    value = formState.host,
+                    onValueChange = { viewModel.onFormEvent(AuthFormEvent.HostChanged(it)) },
+                    errorMessage = formState.hostError,
+                    placeholderText = "Хост",
+                    leadingIcon = painterResource(R.drawable.ic_host_24),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedValidatedTextField(
+                    value = formState.apiKey,
+                    onValueChange = { viewModel.onFormEvent(AuthFormEvent.ApiKeyChanged(it)) },
+                    errorMessage = formState.apiKeyError,
+                    placeholderText = "API-ключ",
+                    leadingIcon = painterResource(R.drawable.ic_api_key_24),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        viewModel.onFormEvent(AuthFormEvent.Submit)
+                    },
+                    text = {
+                        Text(
+                            text = "Отправить запрос",
+                            style = MaterialTheme.typography.body1
+                        )
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Send,
+                            contentDescription = null
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
