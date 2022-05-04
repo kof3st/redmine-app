@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -124,12 +125,13 @@ fun JournalItem(
         ) {
             Text(
                 text = "Изменения №${journal.id}",
+                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.body1
             )
             if (journal.notes != null) {
                 Text(
                     text = journal.notes,
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.body1
                 )
             }
             if (journal.details.isNotEmpty()) {
@@ -137,18 +139,18 @@ fun JournalItem(
                 journal.details.forEach { detail ->
                     Text(
                         text = detail.getInfoText(statuses),
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.body1
                     )
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = journal.user.name,
-                style = MaterialTheme.typography.caption
+                style = MaterialTheme.typography.body2
             )
             Text(
                 text = journal.created_on.formatDate(showTime = true),
-                style = MaterialTheme.typography.caption
+                style = MaterialTheme.typography.body2
             )
         }
     }
