@@ -5,7 +5,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,16 +15,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.ChildIssue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
-import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
+import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
+import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
 
 @Composable
 fun IssueScreen(
@@ -56,12 +62,19 @@ fun IssueScreen(
                         .padding(20.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
+                    HeaderSection(issue)
+                    Divider(modifier = Modifier.padding(vertical = 10.dp))
                     DetailsSection(issue)
-                    if (issue.description != null) {
-                        DescriptionSection(issue)
-                    }
                     if (issue.attachments.isNotEmpty()) {
+                        Divider(modifier = Modifier.padding(vertical = 10.dp))
                         AttachmentsSection(issue)
+                    }
+                    if (issue.children?.isNotEmpty() == true) {
+                        Divider(modifier = Modifier.padding(vertical = 10.dp))
+                        ChildrenSection(
+                            children = issue.children,
+                            navController = navController
+                        )
                     }
                 }
             }
@@ -70,89 +83,118 @@ fun IssueScreen(
 }
 
 @Composable
-fun AttachmentsSection(issue: Issue) {
-    Section("Вложения") {
-        issue.attachments.forEach { attachment ->
-            Text(
-                text = "${attachment.filename} - ${attachment.content_url}",
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+fun ChildrenSection(
+    children: List<ChildIssue>,
+    navController: NavController
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        children.forEach { child ->
+            ClickableCard(
+                onClick = {
+                    navController.navigate(
+                        Screen.Issue.withArgs("issueId" to child.id)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = child.subject,
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier.padding(15.dp)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun DescriptionSection(issue: Issue) {
-    Section("Описание") {
-        Text(
-            text = issue.description!!,
-            style = MaterialTheme.typography.body1
-        )
+fun AttachmentsSection(issue: Issue) {
+    val uriHandler = LocalUriHandler.current
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        issue.attachments.forEach { attachment ->
+            val attachmentLink = buildAnnotatedString {
+                pushStringAnnotation(tag = "file-url", annotation = attachment.content_url)
+                withStyle(style = SpanStyle(color = MaterialTheme.colors.primary)) {
+                    append(attachment.filename)
+                }
+                pop()
+            }
+
+            ClickableText(
+                text = attachmentLink,
+                style = MaterialTheme.typography.body1
+            ) { offset ->
+                attachmentLink.getStringAnnotations(
+                    tag = "file-url",
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.run {
+                    uriHandler.openUri(this.item)
+                }
+            }
+        }
     }
 }
 
 @Composable
 fun DetailsSection(issue: Issue) {
-    Section(issue.subject) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        DetailsRow(name = "Автор", value = issue.author.name)
+        DetailsRow(name = "Исполнитель", value = issue.assigned_to?.name ?: "-")
+        DetailsRow(name = "Статус", value = issue.status.name)
+        DetailsRow(name = "Приоритет", value = issue.priority.name)
+        DetailsRow(name = "Затраченное время", value = issue.estimated_hours.toString())
+        DetailsRow(name = "Дата начала", value = issue.start_date.toString())
+        DetailsRow(name = "Дата обновления", value = issue.updated_on.toString())
+        DetailsRow(name = "Дедлайн", value = "TODO")
+    }
+}
+
+@Composable
+fun DetailsRow(name: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Автор: ${issue.author.name}",
-            style = MaterialTheme.typography.body1
+            text = "$name:",
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.0f)
         )
         Text(
-            text = "Исполнитель: ${issue.assigned_to?.name ?: "-"}",
-            style = MaterialTheme.typography.body1
-        )
-        Text(
-            text = "Статус: ${issue.status.name}",
-            style = MaterialTheme.typography.body1
-        )
-        Text(
-            text = "Приоритет: ${issue.priority.name}",
-            style = MaterialTheme.typography.body1
-        )
-        Text(
-            text = "Затраченное время: ${issue.estimated_hours}",
-            style = MaterialTheme.typography.body1
-        )
-        Text(
-            text = "Дата начала: ${issue.start_date}",
-            style = MaterialTheme.typography.body1
-        )
-        Text(
-            text = "Дата обновления: ${issue.updated_on}",
-            style = MaterialTheme.typography.body1
-        )
-        Text(
-            text = "Дедлайн: ${issue.priority.name}",
-            style = MaterialTheme.typography.body1
+            text = value,
+            style = MaterialTheme.typography.body1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.0f)
         )
     }
 }
 
 @Composable
-fun Section(
-    title: String,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    DefaultCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 10.dp)
+fun HeaderSection(issue: Issue) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
+        Text(
+            text = issue.subject,
+            style = MaterialTheme.typography.h5
+        )
+        issue.description?.run {
             Text(
-                text = title,
-                style = MaterialTheme.typography.h6,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                text = this,
+                style = MaterialTheme.typography.subtitle1
             )
-            Spacer(modifier = Modifier.height(10.dp))
-            content()
         }
     }
 }
