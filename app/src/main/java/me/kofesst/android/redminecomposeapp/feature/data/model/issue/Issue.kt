@@ -1,10 +1,11 @@
 package me.kofesst.android.redminecomposeapp.feature.data.model.issue
 
-import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.feature.data.model.CustomField
 import me.kofesst.android.redminecomposeapp.feature.data.model.attachment.Attachment
+import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.repository.util.DateTime
+import java.text.SimpleDateFormat
 import java.util.*
 
 data class Issue(
@@ -29,4 +30,16 @@ data class Issue(
     var subject: String,
     var tracker: Tracker,
     val updated_on: DateTime
-)
+) {
+    val deadline
+        get(): Date? {
+            val customField = custom_fields.firstOrNull { customField ->
+                customField.id == 10
+            } ?: return null
+
+            if (customField.value.isBlank()) return null
+
+            val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+            return format.parse(customField.value) ?: Date(0)
+        }
+}

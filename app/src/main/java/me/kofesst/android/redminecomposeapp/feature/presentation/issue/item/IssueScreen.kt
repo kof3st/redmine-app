@@ -224,14 +224,14 @@ fun DetailsSection(issue: Issue) {
         modifier = Modifier.fillMaxWidth()
     ) {
         DetailsRow(name = "Автор", value = issue.author.name)
-        DetailsRow(name = "Исполнитель", value = issue.assigned_to?.name ?: "-")
+        DetailsRow(name = "Исполнитель", value = issue.assigned_to?.name ?: "нет")
         DetailsRow(name = "Статус", value = issue.status.name)
         DetailsRow(name = "Приоритет", value = issue.priority.name)
         DetailsRow(name = "Оценочное время", value = issue.estimated_hours.formatHours())
         DetailsRow(name = "Затраченное время", value = issue.spent_hours.formatHours())
         DetailsRow(name = "Дата начала", value = issue.start_date.formatDate())
         DetailsRow(name = "Дата обновления", value = issue.updated_on.formatDate(showTime = true))
-        DetailsRow(name = "Дедлайн", value = "TODO")
+        DetailsRow(name = "Дедлайн", value = issue.deadline?.formatDate() ?: "нет")
     }
 }
 
