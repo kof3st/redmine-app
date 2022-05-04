@@ -4,6 +4,7 @@ import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.feature.data.model.CustomField
 import me.kofesst.android.redminecomposeapp.feature.data.model.attachment.Attachment
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
+import me.kofesst.android.redminecomposeapp.feature.data.repository.util.DateTime
 import java.util.*
 
 data class Issue(
@@ -11,7 +12,7 @@ data class Issue(
     val attachments: List<Attachment> = listOf(),
     val author: Author,
     val children: List<ChildIssue>? = null,
-    val created_on: Date,
+    val created_on: DateTime,
     val custom_fields: List<CustomField>,
     var description: String?,
     val done_ratio: Int,
@@ -26,5 +27,5 @@ data class Issue(
     val status: Status,
     var subject: String,
     var tracker: Tracker,
-    val updated_on: Date
+    val updated_on: DateTime
 )

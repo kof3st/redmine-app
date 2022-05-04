@@ -6,6 +6,9 @@ import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.remote.RedmineApi
+import me.kofesst.android.redminecomposeapp.feature.data.repository.util.DateDeserializer
+import me.kofesst.android.redminecomposeapp.feature.data.repository.util.DateTime
+import me.kofesst.android.redminecomposeapp.feature.data.repository.util.DateTimeDeserializer
 import me.kofesst.android.redminecomposeapp.feature.domain.model.CurrentUser
 import me.kofesst.android.redminecomposeapp.feature.domain.repository.RedmineRepository
 import me.kofesst.android.redminecomposeapp.feature.domain.util.UserHolder
@@ -13,6 +16,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.UnknownHostException
+import java.util.*
 
 class RedmineRepositoryImpl(
     private val userHolder: UserHolder
@@ -88,7 +92,8 @@ class RedmineRepositoryImpl(
 
     private fun buildApi(host: String): RedmineApi {
         val gson = GsonBuilder()
-            .setDateFormat("yyyy/MM/dd")
+            .registerTypeAdapter(DateTime::class.java, DateTimeDeserializer())
+            .registerTypeAdapter(Date::class.java, DateDeserializer())
             .create()
 
         val retrofit = Retrofit.Builder()
