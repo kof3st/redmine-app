@@ -140,6 +140,15 @@ fun JournalItem(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = journal.user.name,
+                style = MaterialTheme.typography.caption
+            )
+            Text(
+                text = journal.created_on.formatDate(showTime = true),
+                style = MaterialTheme.typography.caption
+            )
         }
     }
 }
