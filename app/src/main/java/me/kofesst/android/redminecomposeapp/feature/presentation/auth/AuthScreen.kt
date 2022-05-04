@@ -34,7 +34,6 @@ fun AuthScreen(
         }
     }
 
-
     val loadingState by viewModel.loadingState
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
     if (isLoading) {

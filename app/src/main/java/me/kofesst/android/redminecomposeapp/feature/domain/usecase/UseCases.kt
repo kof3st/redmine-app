@@ -5,5 +5,6 @@ data class UseCases(
     val getProjects: GetProjects,
     val getIssues: GetIssues,
     val getIssueDetails: GetIssueDetails,
+    val getTrackers: GetTrackers,
     val validateForEmptyField: ValidateForEmptyField
 )

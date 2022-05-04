@@ -34,6 +34,7 @@ object AppModule {
             getProjects = GetProjects(repository),
             getIssues = GetIssues(repository),
             getIssueDetails = GetIssueDetails(repository),
+            getTrackers = GetTrackers(repository),
             validateForEmptyField = ValidateForEmptyField()
         )
     }

@@ -1,18 +1,15 @@
 package me.kofesst.android.redminecomposeapp.feature.presentation.issue.list
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,10 +17,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Status
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
+import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueFilterState
+import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueSortState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
+import me.kofesst.android.redminecomposeapp.feature.domain.util.OrderType
 import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
+import me.kofesst.android.redminecomposeapp.feature.presentation.Dropdown
+import me.kofesst.android.redminecomposeapp.feature.presentation.DropdownItem
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issue.SortFilterEvent
 
 @Composable
 fun IssuesScreen(
@@ -38,7 +44,10 @@ fun IssuesScreen(
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
     val currentTab by viewModel.currentTab
-    val issues by viewModel.tabIssues.collectAsState()
+    val issues by viewModel.issues.collectAsState()
+
+    val sortState by viewModel.sortState
+    val filterState by viewModel.filterState
 
     val tabs = listOf(
         IssuesTab.Assigned,
@@ -50,6 +59,11 @@ fun IssuesScreen(
         onRefresh = { viewModel.refreshData() },
         modifier = Modifier.fillMaxSize()
     ) {
+        var sortFilterPanelVisible by remember { mutableStateOf(false) }
+
+        val trackers by viewModel.trackers.collectAsState()
+        val statuses by viewModel.statuses.collectAsState()
+
         Column(modifier = Modifier.fillMaxSize()) {
             TabRow(selectedTabIndex = currentTab.index) {
                 tabs.forEachIndexed { index, tab ->
@@ -65,11 +79,231 @@ fun IssuesScreen(
                     )
                 }
             }
+            SortFilterPanel(
+                visible = sortFilterPanelVisible,
+                sortState = sortState,
+                onSortStateChanged = {
+                    viewModel.onSortFilterEvent(
+                        SortFilterEvent.SortStateChanged(
+                            sortState = it
+                        )
+                    )
+                },
+                filterState = filterState,
+                onFilterStateChanged = {
+                    viewModel.onSortFilterEvent(
+                        SortFilterEvent.FilterStateChanged(
+                            filterState = it
+                        )
+                    )
+                },
+                trackers = trackers,
+                statuses = statuses
+            )
+            SortFilterPanelTail {
+                sortFilterPanelVisible = !sortFilterPanelVisible
+            }
             IssuesColumn(
                 issues = issues,
                 navController = navController
             )
         }
+    }
+}
+
+@Composable
+fun SortFilterPanelTail(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_filter_24),
+                contentDescription = null
+            )
+            Spacer(modifier = Modifier.width(5.dp))
+            Text(
+                text = "Фильтр",
+                style = MaterialTheme.typography.body1
+            )
+        }
+    }
+}
+
+@Composable
+fun SortFilterPanel(
+    visible: Boolean,
+    sortState: IssueSortState,
+    onSortStateChanged: (IssueSortState) -> Unit,
+    filterState: IssueFilterState?,
+    onFilterStateChanged: (IssueFilterState?) -> Unit,
+    trackers: List<Tracker>,
+    statuses: List<Status>
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                SortStateDropdowns(
+                    sortState = sortState,
+                    onStateChanged = onSortStateChanged
+                )
+                FilterStateDropdown(
+                    filterState = filterState,
+                    onStateChanged = onFilterStateChanged,
+                    trackers = trackers,
+                    statuses = statuses
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FilterStateDropdown(
+    filterState: IssueFilterState?,
+    onStateChanged: (IssueFilterState?) -> Unit,
+    trackers: List<Tracker>,
+    statuses: List<Status>
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Фильтрация",
+            style = MaterialTheme.typography.body1
+        )
+
+        val filterStates = listOf(
+            IssueFilterState.ByTracker(),
+            IssueFilterState.ByStatus(),
+        )
+        Dropdown(
+            items = filterStates.map { state ->
+                DropdownItem(
+                    text = stringResource(state.nameRes),
+                    onSelected = {
+                        onStateChanged(state)
+                    }
+                )
+            } + DropdownItem(
+                text = "Нет",
+                onSelected = {
+                    onStateChanged(null)
+                }
+            ),
+            value = if (filterState != null) {
+                stringResource(filterState.nameRes)
+            } else {
+                "Нет"
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        val filterValues = filterState?.let {
+            when (it) {
+                is IssueFilterState.ByTracker -> {
+                    trackers
+                }
+                is IssueFilterState.ByStatus -> {
+                    statuses
+                }
+            }
+        } ?: listOf()
+        Dropdown(
+            items = filterValues.map { value ->
+                DropdownItem(
+                    text = value.toString(),
+                    onSelected = {
+                        when (filterState) {
+                            is IssueFilterState.ByTracker -> {
+                                onStateChanged(
+                                    filterState.copy(
+                                        tracker = value as Tracker
+                                    )
+                                )
+                            }
+                            is IssueFilterState.ByStatus -> {
+                                onStateChanged(
+                                    filterState.copy(
+                                        status = value as Status
+                                    )
+                                )
+                            }
+                            else -> {}
+                        }
+                    }
+                )
+            },
+            value = filterState?.item?.toString() ?: "",
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun SortStateDropdowns(
+    sortState: IssueSortState,
+    onStateChanged: (IssueSortState) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(5.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Сортировка",
+            style = MaterialTheme.typography.body1
+        )
+
+        val sortStates = listOf(
+            IssueSortState.ById(sortState.orderType),
+            IssueSortState.ByPriority(sortState.orderType)
+        )
+        Dropdown(
+            items = sortStates.map { state ->
+                DropdownItem(
+                    text = stringResource(state.nameRes),
+                    onSelected = {
+                        onStateChanged(state)
+                    }
+                )
+            },
+            value = stringResource(sortState.nameRes),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        val orderTypes = listOf(
+            OrderType.Ascending,
+            OrderType.Descending
+        )
+        Dropdown(
+            items = orderTypes.map { type ->
+                DropdownItem(
+                    text = stringResource(type.nameRes),
+                    onSelected = {
+                        onStateChanged(sortState.copy(type))
+                    }
+                )
+            },
+            value = stringResource(sortState.orderType.nameRes),
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

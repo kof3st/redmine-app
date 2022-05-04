@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.feature.presentation
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -30,6 +31,7 @@ abstract class ViewModelBase : ViewModel() {
                     state = LoadingResult.State.FAILED,
                     errorMessage = e.message ?: "Unexpected error"
                 )
+                Log.d("AAA", e.stackTraceToString())
             }
         }
     }

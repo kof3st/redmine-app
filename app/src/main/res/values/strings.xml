@@ -7,4 +7,10 @@
     <string name="issue_details">Детали задачи</string>
     <string name="assigned_to_me">Требует внимания</string>
     <string name="owned_issues">Мои задачи</string>
+    <string name="sort_by_id">По id</string>
+    <string name="sort_by_priority">По приоритету</string>
+    <string name="ascending">По возрастанию</string>
+    <string name="descending">По убыванию</string>
+    <string name="filter_by_tracker">По трекеру</string>
+    <string name="filter_by_status">По статусу</string>
 </resources>
