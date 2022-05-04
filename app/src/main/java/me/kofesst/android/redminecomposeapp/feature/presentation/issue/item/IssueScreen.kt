@@ -63,33 +63,34 @@ fun IssueScreen(
             onRefresh = { viewModel.refreshData(issueId) },
             modifier = Modifier.fillMaxSize()
         ) {
-            issue?.also { issue ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp)
-                        .verticalScroll(rememberScrollState())
-                ) {
-                    HeaderSection(issue)
-                    Divider(modifier = Modifier.padding(vertical = 10.dp))
-                    DetailsSection(issue)
-                    if (issue.attachments.isNotEmpty()) {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                issue?.also { issue ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp)
+                    ) {
+                        HeaderSection(issue)
                         Divider(modifier = Modifier.padding(vertical = 10.dp))
-                        AttachmentsSection(issue)
-                    }
-                    if (issue.children?.isNotEmpty() == true) {
-                        Divider(modifier = Modifier.padding(vertical = 10.dp))
-                        ChildrenSection(
-                            children = issue.children,
-                            navController = navController
-                        )
-                    }
-                    if (issue.journals.isNotEmpty()) {
-                        Divider(modifier = Modifier.padding(vertical = 10.dp))
-                        JournalsSection(
-                            issue = issue,
-                            statuses = statuses
-                        )
+                        DetailsSection(issue)
+                        if (issue.attachments.isNotEmpty()) {
+                            Divider(modifier = Modifier.padding(vertical = 10.dp))
+                            AttachmentsSection(issue)
+                        }
+                        if (issue.children?.isNotEmpty() == true) {
+                            Divider(modifier = Modifier.padding(vertical = 10.dp))
+                            ChildrenSection(
+                                children = issue.children,
+                                navController = navController
+                            )
+                        }
+                        if (issue.journals.isNotEmpty()) {
+                            Divider(modifier = Modifier.padding(vertical = 10.dp))
+                            JournalsSection(
+                                issue = issue,
+                                statuses = statuses
+                            )
+                        }
                     }
                 }
             }
