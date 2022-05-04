@@ -18,11 +18,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
+import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
 
 @Composable
 fun IssueScreen(
@@ -44,8 +44,8 @@ fun IssueScreen(
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isLoading),
+        DefaultSwipeRefresh(
+            refreshState = rememberSwipeRefreshState(isLoading),
             onRefresh = { viewModel.refreshData(issueId) },
             modifier = Modifier.fillMaxSize()
         ) {
@@ -71,14 +71,7 @@ fun IssueScreen(
 
 @Composable
 fun AttachmentsSection(issue: Issue) {
-    Section {
-        Text(
-            text = "Вложения",
-            style = MaterialTheme.typography.h5,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+    Section("Вложения") {
         issue.attachments.forEach { attachment ->
             Text(
                 text = "${attachment.filename} - ${attachment.content_url}",
@@ -91,14 +84,7 @@ fun AttachmentsSection(issue: Issue) {
 
 @Composable
 fun DescriptionSection(issue: Issue) {
-    Section {
-        Text(
-            text = "Описание",
-            style = MaterialTheme.typography.h5,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+    Section("Описание") {
         Text(
             text = issue.description!!,
             style = MaterialTheme.typography.body1
@@ -108,14 +94,7 @@ fun DescriptionSection(issue: Issue) {
 
 @Composable
 fun DetailsSection(issue: Issue) {
-    Section {
-        Text(
-            text = issue.subject,
-            style = MaterialTheme.typography.h5,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+    Section(issue.subject) {
         Text(
             text = "Автор: ${issue.author.name}",
             style = MaterialTheme.typography.body1
@@ -152,7 +131,10 @@ fun DetailsSection(issue: Issue) {
 }
 
 @Composable
-fun Section(content: @Composable ColumnScope.() -> Unit) {
+fun Section(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
     DefaultCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -163,6 +145,13 @@ fun Section(content: @Composable ColumnScope.() -> Unit) {
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.h6,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
             content()
         }
     }

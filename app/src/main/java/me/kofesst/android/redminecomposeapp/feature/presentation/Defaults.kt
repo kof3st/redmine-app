@@ -13,6 +13,43 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.SwipeRefreshState
+
+@Composable
+fun DefaultSwipeRefresh(
+    refreshState: SwipeRefreshState,
+    modifier: Modifier = Modifier,
+    onRefresh: () -> Unit = {},
+    content: @Composable () -> Unit
+) {
+    SwipeRefresh(
+        state = refreshState,
+        onRefresh = onRefresh,
+        indicator = { state, trigger ->
+            DefaultSwipeRefreshIndicator(
+                state = state,
+                trigger = trigger
+            )
+        },
+        content = content,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun DefaultSwipeRefreshIndicator(
+    state: SwipeRefreshState,
+    trigger: Dp
+) {
+    SwipeRefreshIndicator(
+        state = state,
+        refreshTriggerDistance = trigger,
+        scale = true,
+        contentColor = MaterialTheme.colors.primary
+    )
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

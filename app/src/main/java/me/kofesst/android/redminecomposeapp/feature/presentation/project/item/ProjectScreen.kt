@@ -6,9 +6,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
+import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.SortFilterEvent
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.IssuesColumn
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.SortFilterPanel
@@ -32,8 +32,8 @@ fun ProjectScreen(
     val sortState by viewModel.sortState
     val filterState by viewModel.filterState
 
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isLoading),
+    DefaultSwipeRefresh(
+        refreshState = rememberSwipeRefreshState(isLoading),
         onRefresh = { viewModel.refreshData(projectId) },
         modifier = Modifier.fillMaxSize()
     ) {

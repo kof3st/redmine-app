@@ -15,10 +15,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
+import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
 
 @Composable
@@ -38,8 +38,8 @@ fun ProjectsScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(isLoading),
+        DefaultSwipeRefresh(
+            refreshState = rememberSwipeRefreshState(isLoading),
             onRefresh = { viewModel.refreshData() },
             modifier = Modifier.fillMaxSize()
         ) {

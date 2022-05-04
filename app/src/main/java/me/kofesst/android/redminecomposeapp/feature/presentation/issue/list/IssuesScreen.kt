@@ -14,7 +14,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
@@ -24,10 +23,7 @@ import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueFilterState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueSortState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.domain.util.OrderType
-import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
-import me.kofesst.android.redminecomposeapp.feature.presentation.Dropdown
-import me.kofesst.android.redminecomposeapp.feature.presentation.DropdownItem
-import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
+import me.kofesst.android.redminecomposeapp.feature.presentation.*
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.SortFilterEvent
 
 @Composable
@@ -53,8 +49,8 @@ fun IssuesScreen(
         IssuesTab.Owned
     )
 
-    SwipeRefresh(
-        state = rememberSwipeRefreshState(isLoading),
+    DefaultSwipeRefresh(
+        refreshState = rememberSwipeRefreshState(isLoading),
         onRefresh = { viewModel.refreshData() },
         modifier = Modifier.fillMaxSize()
     ) {
@@ -350,7 +346,7 @@ fun IssueItem(
                     text = "${issue.tracker.name} #${issue.id}",
                     style = MaterialTheme.typography.body1
                 )
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(15.dp))
                 Text(
                     text = "Автор: ${issue.author.name}",
                     style = MaterialTheme.typography.body1
