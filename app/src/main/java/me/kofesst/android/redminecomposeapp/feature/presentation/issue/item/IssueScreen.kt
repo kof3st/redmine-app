@@ -125,18 +125,20 @@ fun JournalItem(
                 text = "Изменения №${journal.id}",
                 style = MaterialTheme.typography.body1
             )
-            journal.notes?.run {
+            if (journal.notes != null) {
                 Text(
-                    text = this,
+                    text = journal.notes,
                     style = MaterialTheme.typography.body2
                 )
             }
-            Spacer(modifier = Modifier.height(10.dp))
-            journal.details.forEach { detail ->
-                Text(
-                    text = detail.getInfoText(statuses),
-                    style = MaterialTheme.typography.body2
-                )
+            if (journal.details.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(10.dp))
+                journal.details.forEach { detail ->
+                    Text(
+                        text = detail.getInfoText(statuses),
+                        style = MaterialTheme.typography.body2
+                    )
+                }
             }
         }
     }
