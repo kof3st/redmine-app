@@ -12,7 +12,7 @@ data class Issue(
     val children: List<ChildIssue>? = null,
     val created_on: Date,
     val custom_fields: List<CustomField>,
-    var description: String,
+    var description: String?,
     val done_ratio: Int,
     var due_date: Date?,
     val journals: List<Journal> = listOf(),

@@ -57,7 +57,9 @@ fun IssueScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     DetailsSection(issue)
-                    DescriptionSection(issue)
+                    if (issue.description != null) {
+                        DescriptionSection(issue)
+                    }
                     if (issue.attachments.isNotEmpty()) {
                         AttachmentsSection(issue)
                     }
@@ -98,7 +100,7 @@ fun DescriptionSection(issue: Issue) {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = issue.description,
+            text = issue.description!!,
             style = MaterialTheme.typography.body1
         )
     }
