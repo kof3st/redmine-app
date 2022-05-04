@@ -13,7 +13,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -33,7 +32,7 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.issue.SortFilte
 
 @Composable
 fun IssuesScreen(
-    viewModel: IssuesViewModel = hiltViewModel(),
+    viewModel: IssuesViewModel,
     navController: NavController
 ) {
     LaunchedEffect(key1 = true) {

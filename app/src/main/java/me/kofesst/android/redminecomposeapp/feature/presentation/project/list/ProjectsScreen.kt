@@ -14,7 +14,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -24,7 +23,7 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
 
 @Composable
 fun ProjectsScreen(
-    viewModel: ProjectsViewModel = hiltViewModel(),
+    viewModel: ProjectsViewModel,
     navController: NavController
 ) {
     LaunchedEffect(key1 = true) {

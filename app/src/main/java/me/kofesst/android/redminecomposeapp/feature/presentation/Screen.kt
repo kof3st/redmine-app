@@ -5,15 +5,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.navigation.*
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import me.kofesst.android.redminecomposeapp.R
-import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.issue.item.IssueScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.IssuesScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.project.item.ProjectScreen
-import me.kofesst.android.redminecomposeapp.feature.presentation.project.list.ProjectsScreen
 
 sealed class Screen(
     route: String,
@@ -64,37 +60,18 @@ sealed class Screen(
         }
     }
 
-    abstract fun getContent(
-        navController: NavController,
-        navBackStackEntry: NavBackStackEntry
-    ): @Composable () -> Unit
-
     object Auth : Screen(
         route = "auth-screen",
         nameRes = R.string.auth,
         icon = Icons.Outlined.AccountCircle
-    ) {
-        override fun getContent(
-            navController: NavController,
-            navBackStackEntry: NavBackStackEntry
-        ): @Composable () -> Unit {
-            return { AuthScreen(navController = navController) }
-        }
-    }
+    )
 
     object Issues : Screen(
         route = "issues-screen",
         nameRes = R.string.issues,
         icon = Icons.Outlined.List,
         hasBottomBar = true
-    ) {
-        override fun getContent(
-            navController: NavController,
-            navBackStackEntry: NavBackStackEntry
-        ): @Composable () -> Unit {
-            return { IssuesScreen(navController = navController) }
-        }
-    }
+    )
 
     object Issue : Screen(
         route = "issue-screen",
@@ -107,33 +84,14 @@ sealed class Screen(
                 nullable = false
             }
         )
-    ) {
-        override fun getContent(
-            navController: NavController,
-            navBackStackEntry: NavBackStackEntry
-        ): @Composable () -> Unit {
-            return {
-                IssueScreen(
-                    issueId = navBackStackEntry.arguments?.getInt("issueId") ?: -1,
-                    navController = navController
-                )
-            }
-        }
-    }
+    )
 
     object Projects : Screen(
         route = "projects-screen",
         nameRes = R.string.projects,
         icon = Icons.Outlined.Person,
         hasBottomBar = true
-    ) {
-        override fun getContent(
-            navController: NavController,
-            navBackStackEntry: NavBackStackEntry
-        ): @Composable () -> Unit {
-            return { ProjectsScreen(navController = navController) }
-        }
-    }
+    )
 
     object Project : Screen(
         route = "project-screen",
@@ -146,17 +104,5 @@ sealed class Screen(
                 nullable = false
             }
         )
-    ) {
-        override fun getContent(
-            navController: NavController,
-            navBackStackEntry: NavBackStackEntry
-        ): @Composable () -> Unit {
-            return {
-                ProjectScreen(
-                    projectId = navBackStackEntry.arguments?.getInt("projectId") ?: -1,
-                    navController = navController
-                )
-            }
-        }
-    }
+    )
 }

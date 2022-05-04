@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,6 +22,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issue.item.IssueScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.IssuesScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.project.item.ProjectScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.project.list.ProjectsScreen
 import me.kofesst.android.redminecomposeapp.ui.theme.RedmineComposeAppTheme
 
 @AndroidEntryPoint
@@ -67,109 +73,131 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-}
 
-@Composable
-fun TopBar(
-    currentScreen: Screen,
-    navController: NavController
-) {
-    TopAppBar(
-        title = { Text(text = stringResource(currentScreen.nameRes)) },
-        navigationIcon = if (currentScreen.hasBackButton) {
-            {
-                IconButton(onClick = { navController.navigateUp() }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = null
-                    )
-                }
-            }
-        } else {
-            null
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
-}
-
-@Composable
-fun ScreenNavHost(
-    navController: NavHostController,
-    paddingValues: PaddingValues
-) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Auth.route,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+    @Composable
+    fun TopBar(
+        currentScreen: Screen,
+        navController: NavController
     ) {
-        Screen.all.forEach { screen ->
-            composable(
-                route = screen.route,
-                arguments = screen.args
-            ) { entry ->
-                screen.getContent(
-                    navController = navController,
-                    navBackStackEntry = entry
-                )()
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomNavigationBar(
-    currentScreen: Screen,
-    navController: NavController
-) {
-    AnimatedVisibility(
-        visible = currentScreen.hasBottomBar,
-        enter = expandVertically() + fadeIn(),
-        exit = shrinkVertically() + fadeOut()
-    ) {
-        BottomNavigation(elevation = 5.dp) {
-            Screen.bottomBarScreens.forEach { screen ->
-                val selected = screen.route == currentScreen.route
-                BottomNavigationItem(
-                    selected = selected,
-                    onClick = {
-                        navController.navigate(screen.route)
-                    },
-                    icon = {
-                        BottomNavigationItemContent(
-                            selected = selected,
-                            icon = {
-                                Icon(
-                                    imageVector = screen.icon,
-                                    contentDescription = null
-                                )
-                            },
-                            text = stringResource(screen.nameRes)
+        TopAppBar(
+            title = { Text(text = stringResource(currentScreen.nameRes)) },
+            navigationIcon = if (currentScreen.hasBackButton) {
+                {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null
                         )
                     }
+                }
+            } else {
+                null
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+
+    @Composable
+    fun ScreenNavHost(
+        navController: NavHostController,
+        paddingValues: PaddingValues
+    ) {
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Auth.route,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            composable(route = Screen.Auth.route) {
+                AuthScreen(navController = navController)
+            }
+            composable(route = Screen.Issues.route) {
+                IssuesScreen(
+                    navController = navController,
+                    viewModel = hiltViewModel(viewModelStoreOwner = this@MainActivity)
+                )
+            }
+            composable(route = Screen.Projects.route) {
+                ProjectsScreen(
+                    navController = navController,
+                    viewModel = hiltViewModel(viewModelStoreOwner = this@MainActivity)
+                )
+            }
+            composable(
+                route = Screen.Issue.route,
+                arguments = Screen.Issue.args
+            ) { entry ->
+                IssueScreen(
+                    issueId = entry.arguments?.getInt("issueId") ?: -1,
+                    navController = navController
+                )
+            }
+            composable(
+                route = Screen.Project.route,
+                arguments = Screen.Project.args
+            ) { entry ->
+                ProjectScreen(
+                    projectId = entry.arguments?.getInt("projectId") ?: -1,
+                    navController = navController
                 )
             }
         }
     }
-}
 
-@Composable
-fun BottomNavigationItemContent(
-    selected: Boolean,
-    icon: @Composable ColumnScope.() -> Unit,
-    text: String
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    @Composable
+    fun BottomNavigationBar(
+        currentScreen: Screen,
+        navController: NavController
     ) {
-        icon()
-        AnimatedVisibility(visible = selected) {
-            Text(
-                text = text,
-                fontSize = 12.sp
-            )
+        AnimatedVisibility(
+            visible = currentScreen.hasBottomBar,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            BottomNavigation(elevation = 5.dp) {
+                Screen.bottomBarScreens.forEach { screen ->
+                    val selected = screen.route == currentScreen.route
+                    BottomNavigationItem(
+                        selected = selected,
+                        onClick = {
+                            navController.navigate(screen.route)
+                        },
+                        icon = {
+                            BottomNavigationItemContent(
+                                selected = selected,
+                                icon = {
+                                    Icon(
+                                        imageVector = screen.icon,
+                                        contentDescription = null
+                                    )
+                                },
+                                text = stringResource(screen.nameRes)
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun BottomNavigationItemContent(
+        selected: Boolean,
+        icon: @Composable ColumnScope.() -> Unit,
+        text: String
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            icon()
+            AnimatedVisibility(visible = selected) {
+                Text(
+                    text = text,
+                    fontSize = 12.sp
+                )
+            }
         }
     }
 }
