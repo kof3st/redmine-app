@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.feature.data.remote
 
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.CreateIssueBody
 import me.kofesst.android.redmineapp.feature.data.model.project.ProjectsResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.IssueDetailsResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.IssuesResponse
@@ -8,9 +9,7 @@ import me.kofesst.android.redminecomposeapp.feature.data.model.status.StatusesRe
 import me.kofesst.android.redminecomposeapp.feature.data.model.tracker.TrackersResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.user.UserResponse
 import retrofit2.Response
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.Path
+import retrofit2.http.*
 
 interface RedmineApi {
     companion object {
@@ -37,6 +36,19 @@ interface RedmineApi {
         @Header(API_KEY_HEADER) apiKey: String,
         @Path("issueId") issueId: Int
     ): Response<IssueDetailsResponse>
+
+    @POST("/issues.json")
+    suspend fun createIssue(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Body issue: CreateIssueBody
+    )
+
+    @PUT("/issues/{issueId}.json")
+    suspend fun updateIssue(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Path("issueId") issueId: Int,
+        @Body issue: CreateIssueBody
+    )
 
     @GET("/trackers.json")
     suspend fun getTrackers(

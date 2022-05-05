@@ -7,14 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Priority
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.*
 import me.kofesst.android.redminecomposeapp.feature.data.model.membership.User
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.usecase.UseCases
@@ -155,7 +152,27 @@ class CreateEditIssueViewModel @Inject constructor(
                     }
                 }
             ) {
-                delay(2000)
+                val issueBody = CreateIssueBody(
+                    CreateIssueDetails(
+                        project_id = projectId,
+                        subject = formState.subject,
+                        description = formState.description,
+                        assigned_to_id = formState.assignedTo?.id,
+                        priority_id = formState.priority!!.id,
+                        tracker_id = formState.tracker!!.id,
+                        status_id = formState.status?.id ?: 1,
+                        notes = formState.changesNotes
+                    )
+                )
+
+                editing.value?.run {
+                    useCases.updateIssue(
+                        issueId = this.id,
+                        issue = issueBody
+                    )
+                } ?: kotlin.run {
+                    useCases.createIssue(issueBody)
+                }
             }
         }
     }

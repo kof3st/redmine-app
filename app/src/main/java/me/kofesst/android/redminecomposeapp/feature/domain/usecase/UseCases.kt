@@ -5,6 +5,8 @@ data class UseCases(
     val getProjects: GetProjects,
     val getIssues: GetIssues,
     val getIssueDetails: GetIssueDetails,
+    val createIssue: CreateIssue,
+    val updateIssue: UpdateIssue,
     val getTrackers: GetTrackers,
     val getStatuses: GetStatuses,
     val getMembers: GetMembers,

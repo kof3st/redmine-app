@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.feature.domain.repository
 
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.CreateIssueBody
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.membership.Membership
@@ -16,6 +17,10 @@ interface RedmineRepository {
     suspend fun getIssues(): List<Issue>
 
     suspend fun getIssueDetails(issueId: Int): Issue
+
+    suspend fun createIssue(issue: CreateIssueBody)
+
+    suspend fun updateIssue(issueId: Int, issue: CreateIssueBody)
 
     suspend fun getTrackers(): List<Tracker>
 

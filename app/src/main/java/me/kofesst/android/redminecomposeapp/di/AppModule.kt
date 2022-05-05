@@ -34,6 +34,8 @@ object AppModule {
             getProjects = GetProjects(repository),
             getIssues = GetIssues(repository),
             getIssueDetails = GetIssueDetails(repository),
+            createIssue = CreateIssue(repository),
+            updateIssue = UpdateIssue(repository),
             getTrackers = GetTrackers(repository),
             getStatuses = GetStatuses(repository),
             getMembers = GetMembers(repository),

@@ -1,6 +1,7 @@
 package me.kofesst.android.redminecomposeapp.feature.data.repository
 
 import com.google.gson.GsonBuilder
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.CreateIssueBody
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.membership.Membership
@@ -52,6 +53,23 @@ class RedmineRepositoryImpl(
     }
 
     @Throws(Exception::class)
+    override suspend fun createIssue(issue: CreateIssueBody) {
+        handleRequest(userHolder.host) { api ->
+            api.createIssue(userHolder.apiKey, issue)
+        }
+    }
+
+    @Throws(Exception::class)
+    override suspend fun updateIssue(
+        issueId: Int,
+        issue: CreateIssueBody
+    ) {
+        handleRequest(userHolder.host) { api ->
+            api.updateIssue(userHolder.apiKey, issueId, issue)
+        }
+    }
+
+    @Throws(Exception::class)
     override suspend fun getTrackers(): List<Tracker> {
         return handleResponse(userHolder.host) { api ->
             api.getTrackers(userHolder.apiKey)
@@ -70,6 +88,22 @@ class RedmineRepositoryImpl(
         return handleResponse(userHolder.host) { api ->
             api.getMembers(userHolder.apiKey, projectId)
         }.memberships
+    }
+
+    @Throws(Exception::class)
+    private suspend fun handleRequest(
+        host: String,
+        request: suspend (RedmineApi) -> Unit
+    ) {
+        try {
+            request(buildApi(host))
+        } catch (hostException: UnknownHostException) {
+            throw Exception("Хост не найден")
+        } catch (nullException: NullPointerException) {
+            throw Exception("Тело ответа пустое")
+        } catch (e: Exception) {
+            throw Exception(e)
+        }
     }
 
     @Throws(Exception::class)

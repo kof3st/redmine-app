@@ -33,13 +33,7 @@ fun CreateEditIssueScreen(
         viewModel.validationEvents.collect { event ->
             when (event) {
                 is ValidationEvent.Success -> {
-                    navController.navigate(
-                        if (issueId != -1) {
-                            Screen.Issue.withArgs("issueId" to issueId)
-                        } else {
-                            Screen.Project.withArgs("projectId" to projectId)
-                        }
-                    )
+                    navController.navigateUp()
                 }
             }
         }
