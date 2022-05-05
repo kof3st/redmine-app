@@ -51,12 +51,35 @@ fun DefaultSwipeRefreshIndicator(
     )
 }
 
+@Composable
+fun ValidatedDropdown(
+    items: List<DropdownItem>,
+    value: String,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    errorMessage: String? = null
+) {
+    Dropdown(
+        items = items,
+        value = value,
+        placeholder = placeholder,
+        isError = errorMessage != null,
+        modifier = modifier
+    )
+    TextFieldError(
+        modifier = Modifier.fillMaxWidth(),
+        message = errorMessage
+    )
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun Dropdown(
     items: List<DropdownItem>,
     value: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isError: Boolean = false
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -70,6 +93,8 @@ fun Dropdown(
             value = value,
             onValueChange = { },
             maxLines = 1,
+            isError = isError,
+            label = { Text(text = placeholder) },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = isExpanded
@@ -142,21 +167,42 @@ fun OutlinedValidatedTextField(
     value: String = "",
     errorMessage: String? = null,
     onValueChange: (String) -> Unit = {},
-    placeholderText: String = "",
+    label: String = "",
     leadingIcon: Painter? = null
+) {
+    DefaultTextField(
+        value = value,
+        onValueChange = onValueChange,
+        errorMessage = errorMessage,
+        label = label,
+        leadingIcon = leadingIcon,
+        singleLine = true,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun DefaultTextField(
+    modifier: Modifier = Modifier,
+    value: String = "",
+    onValueChange: (String) -> Unit = {},
+    errorMessage: String? = null,
+    label: String = "",
+    leadingIcon: Painter? = null,
+    singleLine: Boolean = false
 ) {
     Column(modifier = modifier) {
         OutlinedTextField(
             value = value,
             onValueChange = { onValueChange(it) },
             isError = errorMessage != null,
-            placeholder = { Text(text = placeholderText) },
+            label = { Text(text = label) },
             leadingIcon = if (leadingIcon != null) {
                 { Icon(painter = leadingIcon, contentDescription = null) }
             } else {
                 null
             },
-            maxLines = 1,
+            singleLine = singleLine,
             modifier = Modifier.fillMaxWidth()
         )
         TextFieldError(

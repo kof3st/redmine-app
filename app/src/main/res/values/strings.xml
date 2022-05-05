@@ -13,4 +13,5 @@
     <string name="descending">По убыванию</string>
     <string name="filter_by_tracker">По трекеру</string>
     <string name="filter_by_status">По статусу</string>
+    <string name="create_edit_issue">Сохранение задачи</string>
 </resources>

@@ -24,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.issue.edit.CreateEditIssueScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.item.IssueScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.IssuesScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.project.item.ProjectScreen
@@ -134,6 +135,17 @@ class MainActivity : ComponentActivity() {
                     navController = navController
                 )
             }
+            composable(
+                route = Screen.CreateEditIssue.route,
+                arguments = Screen.CreateEditIssue.args
+            ) { entry ->
+                CreateEditIssueScreen(
+                    issueId = entry.arguments?.getInt("issueId") ?: -1,
+                    projectId = entry.arguments?.getInt("projectId") ?: -1,
+                    navController = navController
+                )
+            }
+
             composable(
                 route = Screen.Project.route,
                 arguments = Screen.Project.args

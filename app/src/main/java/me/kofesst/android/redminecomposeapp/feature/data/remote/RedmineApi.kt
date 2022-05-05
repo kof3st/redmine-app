@@ -3,6 +3,7 @@ package me.kofesst.android.redminecomposeapp.feature.data.remote
 import me.kofesst.android.redmineapp.feature.data.model.project.ProjectsResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.IssueDetailsResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.IssuesResponse
+import me.kofesst.android.redminecomposeapp.feature.data.model.membership.MembersResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.StatusesResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.tracker.TrackersResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.user.UserResponse
@@ -46,4 +47,10 @@ interface RedmineApi {
     suspend fun getStatuses(
         @Header(API_KEY_HEADER) apiKey: String
     ): Response<StatusesResponse>
+
+    @GET("/projects/{projectId}/memberships.json")
+    suspend fun getMembers(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Path("projectId") projectId: Int
+    ): Response<MembersResponse>
 }

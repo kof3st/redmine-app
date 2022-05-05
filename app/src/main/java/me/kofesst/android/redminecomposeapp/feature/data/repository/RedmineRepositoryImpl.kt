@@ -3,6 +3,7 @@ package me.kofesst.android.redminecomposeapp.feature.data.repository
 import com.google.gson.GsonBuilder
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
+import me.kofesst.android.redminecomposeapp.feature.data.model.membership.Membership
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.remote.RedmineApi
@@ -62,6 +63,13 @@ class RedmineRepositoryImpl(
         return handleResponse(userHolder.host) { api ->
             api.getStatuses(userHolder.apiKey)
         }.issue_statuses
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getMembers(projectId: Int): List<Membership> {
+        return handleResponse(userHolder.host) { api ->
+            api.getMembers(userHolder.apiKey, projectId)
+        }.memberships
     }
 
     @Throws(Exception::class)

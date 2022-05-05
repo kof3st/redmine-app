@@ -7,5 +7,7 @@ data class UseCases(
     val getIssueDetails: GetIssueDetails,
     val getTrackers: GetTrackers,
     val getStatuses: GetStatuses,
-    val validateForEmptyField: ValidateForEmptyField
+    val getMembers: GetMembers,
+    val validateForEmptyField: ValidateForEmptyField,
+    val validateForNotNullField: ValidateForNotNullField
 )

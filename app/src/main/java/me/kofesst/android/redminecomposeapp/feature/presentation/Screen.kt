@@ -21,6 +21,7 @@ sealed class Screen(
                 Auth,
                 Issues,
                 Issue,
+                CreateEditIssue,
                 Projects,
                 Project
             )
@@ -48,11 +49,18 @@ sealed class Screen(
         }
     }
 
-    fun withArgs(vararg args: Pair<String, Any>): String {
-        return args.fold(route) { acc, (key, value) ->
+    fun withArgs(vararg arguments: Pair<String, Any>): String {
+        val argsRoute = arguments.fold(route) { acc, (key, value) ->
             acc
                 .replace("{$key}", value.toString(), true)
                 .replace(key, value.toString(), true)
+        }
+
+        return args.fold(argsRoute) { acc, arg ->
+            acc.replace(
+                "{${arg.name}}",
+                arg.argument.defaultValue?.toString() ?: ""
+            )
         }
     }
 
@@ -76,6 +84,24 @@ sealed class Screen(
             navArgument("issueId") {
                 type = NavType.IntType
                 nullable = false
+            }
+        )
+    )
+
+    object CreateEditIssue : Screen(
+        route = "create-edit-issue",
+        nameRes = R.string.create_edit_issue,
+        hasBackButton = true,
+        args = listOf(
+            navArgument("issueId") {
+                type = NavType.IntType
+                nullable = false
+                defaultValue = -1
+            },
+            navArgument("projectId") {
+                type = NavType.IntType
+                nullable = false
+                defaultValue = -1
             }
         )
     )
