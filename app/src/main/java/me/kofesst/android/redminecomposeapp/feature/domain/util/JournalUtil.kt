@@ -42,7 +42,7 @@ fun Detail.getInfoText(
                     )
                     cfTitle = CustomField.Deadline.title
                 }
-                else -> return "Invalid cf name"
+                else -> return "Незнакомый айди кастомного поля"
             }
 
             return values.getValuesText(cfTitle)
@@ -75,22 +75,25 @@ fun Detail.getInfoText(
                     )
                     attrTitle = Attribute.PriorityAttr.title
                 }
-                else -> return "Invalid attr name"
+                Attribute.DescriptionAttr.name -> {
+                    return "Параметр \"${Attribute.DescriptionAttr.title}\" изменён"
+                }
+                else -> return "Незнакомое имя атрибута"
             }
 
             return values.getValuesText(attrTitle)
         }
-        else -> "Invalid"
+        else -> "Незнакомое значение"
     }
 }
 
 sealed class Attribute(val name: String, val title: String) {
     object StatusAttr : Attribute("status_id", "Статус") {
         private fun getValueText(statuses: List<Status>, value: String): String {
-            val statusId = value.toIntOrNull() ?: return "Invalid value"
+            val statusId = value.toIntOrNull() ?: return "Некорректный id статуса"
             val status = statuses.firstOrNull {
                 it.id == statusId
-            } ?: return "Invalid status id"
+            } ?: return "Некорректный id статуса"
             return status.name
         }
 
@@ -115,10 +118,10 @@ sealed class Attribute(val name: String, val title: String) {
 
     object PriorityAttr : Attribute("priority_id", "Приоритет") {
         private fun getValueText(priorities: List<Priority>, value: String): String {
-            val priorityId = value.toIntOrNull() ?: return "Invalid value"
+            val priorityId = value.toIntOrNull() ?: return "Некорректный id приоритета"
             val priority = priorities.firstOrNull {
                 it.id == priorityId
-            } ?: return "Invalid priority id"
+            } ?: return "Некорректный id приоритета"
             return priority.name
         }
 
@@ -132,6 +135,8 @@ sealed class Attribute(val name: String, val title: String) {
             }
         }
     }
+
+    object DescriptionAttr : Attribute("description", "Описание")
 }
 
 sealed class CustomField(val name: String, val title: String) {
@@ -141,9 +146,9 @@ sealed class CustomField(val name: String, val title: String) {
             oldValue: String?
         ): Pair<String, String?> {
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
-            return (format.parse(newValue)?.formatDate() ?: "Invalid date") to oldValue?.let {
+            return (format.parse(newValue)?.formatDate() ?: "Некорректная дата") to oldValue?.let {
                 if (it.isBlank()) return@let null
-                (format.parse(it)?.formatDate() ?: "Invalid date")
+                (format.parse(it)?.formatDate() ?: "Некорректная дата")
             }
         }
     }
