@@ -7,15 +7,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -24,8 +24,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.ChildIssue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Priority
 import me.kofesst.android.redminecomposeapp.feature.data.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
@@ -52,6 +54,7 @@ fun IssueScreen(
 
     val issue by viewModel.issue.collectAsState()
     val statuses by viewModel.statuses.collectAsState()
+    val priorities by viewModel.priorities.collectAsState()
 
     AnimatedVisibility(
         visible = issue != null,
@@ -63,35 +66,55 @@ fun IssueScreen(
             onRefresh = { viewModel.refreshData(issueId) },
             modifier = Modifier.fillMaxSize()
         ) {
-            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                issue?.also { issue ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(20.dp)
-                    ) {
-                        HeaderSection(issue)
-                        Divider(modifier = Modifier.padding(vertical = 10.dp))
-                        DetailsSection(issue)
-                        if (issue.attachments.isNotEmpty()) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    issue?.also { issue ->
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(20.dp)
+                        ) {
+                            HeaderSection(issue)
                             Divider(modifier = Modifier.padding(vertical = 10.dp))
-                            AttachmentsSection(issue)
-                        }
-                        if (issue.children?.isNotEmpty() == true) {
-                            Divider(modifier = Modifier.padding(vertical = 10.dp))
-                            ChildrenSection(
-                                children = issue.children,
-                                navController = navController
-                            )
-                        }
-                        if (issue.journals.isNotEmpty()) {
-                            Divider(modifier = Modifier.padding(vertical = 10.dp))
-                            JournalsSection(
-                                issue = issue,
-                                statuses = statuses
-                            )
+                            DetailsSection(issue)
+                            if (issue.attachments.isNotEmpty()) {
+                                Divider(modifier = Modifier.padding(vertical = 10.dp))
+                                AttachmentsSection(issue)
+                            }
+                            if (issue.children?.isNotEmpty() == true) {
+                                Divider(modifier = Modifier.padding(vertical = 10.dp))
+                                ChildrenSection(
+                                    children = issue.children,
+                                    navController = navController
+                                )
+                            }
+                            if (issue.journals.isNotEmpty()) {
+                                Divider(modifier = Modifier.padding(vertical = 10.dp))
+                                JournalsSection(
+                                    issue = issue,
+                                    statuses = statuses,
+                                    priorities = priorities
+                                )
+                            }
                         }
                     }
+                }
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(
+                            Screen.CreateEditIssue.withArgs(
+                                "issueId" to issueId
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(20.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_add_24),
+                        contentDescription = null
+                    )
                 }
             }
         }
@@ -101,14 +124,19 @@ fun IssueScreen(
 @Composable
 fun JournalsSection(
     issue: Issue,
-    statuses: List<Status>
+    statuses: List<Status>,
+    priorities: List<Priority>
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         issue.journals.forEach { journal ->
-            JournalItem(journal, statuses)
+            JournalItem(
+                journal,
+                statuses,
+                priorities
+            )
         }
     }
 }
@@ -116,7 +144,8 @@ fun JournalsSection(
 @Composable
 fun JournalItem(
     journal: Journal,
-    statuses: List<Status>
+    statuses: List<Status>,
+    priorities: List<Priority>
 ) {
     DefaultCard(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -139,7 +168,7 @@ fun JournalItem(
                 Spacer(modifier = Modifier.height(10.dp))
                 journal.details.forEach { detail ->
                     Text(
-                        text = detail.getInfoText(statuses),
+                        text = detail.getInfoText(statuses, priorities),
                         style = MaterialTheme.typography.body1
                     )
                 }

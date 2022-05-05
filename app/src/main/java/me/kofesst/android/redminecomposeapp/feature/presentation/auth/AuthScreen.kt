@@ -69,7 +69,7 @@ fun AuthScreen(
                     value = formState.host,
                     onValueChange = { viewModel.onFormEvent(AuthFormEvent.HostChanged(it)) },
                     errorMessage = formState.hostError,
-                    placeholderText = "Хост",
+                    label = "Хост",
                     leadingIcon = painterResource(R.drawable.ic_host_24),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -77,7 +77,7 @@ fun AuthScreen(
                     value = formState.apiKey,
                     onValueChange = { viewModel.onFormEvent(AuthFormEvent.ApiKeyChanged(it)) },
                     errorMessage = formState.apiKeyError,
-                    placeholderText = "API-ключ",
+                    label = "API-ключ",
                     leadingIcon = painterResource(R.drawable.ic_api_key_24),
                     modifier = Modifier.fillMaxWidth()
                 )

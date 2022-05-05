@@ -36,7 +36,9 @@ object AppModule {
             getIssueDetails = GetIssueDetails(repository),
             getTrackers = GetTrackers(repository),
             getStatuses = GetStatuses(repository),
-            validateForEmptyField = ValidateForEmptyField()
+            getMembers = GetMembers(repository),
+            validateForEmptyField = ValidateForEmptyField(),
+            validateForNotNullField = ValidateForNotNullField()
         )
     }
 }
