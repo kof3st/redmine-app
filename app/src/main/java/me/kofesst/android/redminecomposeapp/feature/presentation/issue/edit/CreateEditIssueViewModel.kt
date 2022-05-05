@@ -77,7 +77,7 @@ class CreateEditIssueViewModel @Inject constructor(
             }
 
             _members.value = try {
-                useCases.getMembers(projectId).map { it.user }
+                useCases.getMembers(this.projectId).map { it.user }
             } catch (e: Exception) {
                 listOf(
                     User(
