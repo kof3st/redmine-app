@@ -216,6 +216,10 @@ fun AssignedToField(
         },
         value = formState.assignedTo?.name ?: "",
         placeholder = "Исполнитель",
+        hasNullValue = true,
+        onNullValueSelected = {
+            viewModel.onFormEvent(IssueFormEvent.AssignedToChanged(null))
+        },
         modifier = Modifier.fillMaxWidth()
     )
 }

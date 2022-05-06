@@ -298,9 +298,9 @@ fun HeaderSection(issue: Issue) {
             text = issue.subject,
             style = MaterialTheme.typography.h5
         )
-        issue.description?.run {
+        if (issue.description?.isNotBlank() == true) {
             Text(
-                text = this,
+                text = issue.description!!,
                 style = MaterialTheme.typography.subtitle1
             )
         }

@@ -79,7 +79,9 @@ fun Dropdown(
     value: String,
     modifier: Modifier = Modifier,
     placeholder: String = "",
-    isError: Boolean = false
+    isError: Boolean = false,
+    hasNullValue: Boolean = false,
+    onNullValueSelected: () -> Unit = {}
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -109,7 +111,13 @@ fun Dropdown(
                 isExpanded = false
             }
         ) {
-            items.forEach { item ->
+            items.let {
+                if (hasNullValue) {
+                    it + DropdownItem.getNullItem(onNullValueSelected)
+                } else {
+                    it
+                }
+            }.forEach { item ->
                 DropdownMenuItem(onClick = {
                     item.onSelected()
                     isExpanded = false
@@ -128,7 +136,13 @@ fun Dropdown(
 data class DropdownItem(
     val text: String,
     val onSelected: () -> Unit
-)
+) {
+    companion object {
+        fun getNullItem(onSelected: () -> Unit): DropdownItem {
+            return DropdownItem("Нет", onSelected)
+        }
+    }
+}
 
 @Composable
 fun ClickableCard(

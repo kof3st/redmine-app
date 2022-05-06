@@ -156,8 +156,8 @@ class CreateEditIssueViewModel @Inject constructor(
                     CreateIssueDetails(
                         project_id = projectId,
                         subject = formState.subject,
-                        description = formState.description,
-                        assigned_to_id = formState.assignedTo?.id,
+                        description = formState.description ?: "",
+                        assigned_to_id = formState.assignedTo?.id.toString() ?: "",
                         priority_id = formState.priority!!.id,
                         tracker_id = formState.tracker!!.id,
                         status_id = formState.status?.id ?: 1,
