@@ -76,7 +76,10 @@ fun Detail.getInfoText(
                     attrTitle = Attribute.PriorityAttr.title
                 }
                 Attribute.DescriptionAttr.name -> {
-                    return "Параметр \"${Attribute.DescriptionAttr.title}\" изменён"
+                    return Attribute.DescriptionAttr.getText()
+                }
+                Attribute.AssignedToAttr.name -> {
+                    return Attribute.AssignedToAttr.getText()
                 }
                 else -> return "Незнакомое имя атрибута"
             }
@@ -136,7 +139,17 @@ sealed class Attribute(val name: String, val title: String) {
         }
     }
 
-    object DescriptionAttr : Attribute("description", "Описание")
+    object DescriptionAttr : Attribute("description", "Описание") {
+        fun getText(): String {
+            return "Описание задачи изменено"
+        }
+    }
+
+    object AssignedToAttr : Attribute("assigned_to_id", "Исполнитель") {
+        fun getText(): String {
+            return "Смена исполнителя задачи"
+        }
+    }
 }
 
 sealed class CustomField(val name: String, val title: String) {
