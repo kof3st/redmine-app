@@ -168,7 +168,9 @@ fun OutlinedValidatedTextField(
     errorMessage: String? = null,
     onValueChange: (String) -> Unit = {},
     label: String = "",
-    leadingIcon: Painter? = null
+    leadingIcon: Painter? = null,
+    trailingIcon: Painter? = null,
+    onTrailingIconClick: () -> Unit = {}
 ) {
     DefaultTextField(
         value = value,
@@ -176,6 +178,8 @@ fun OutlinedValidatedTextField(
         errorMessage = errorMessage,
         label = label,
         leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+        onTrailingIconClick = onTrailingIconClick,
         singleLine = true,
         modifier = modifier
     )
@@ -186,15 +190,19 @@ fun DefaultTextField(
     modifier: Modifier = Modifier,
     value: String = "",
     onValueChange: (String) -> Unit = {},
+    isReadOnly: Boolean = false,
     errorMessage: String? = null,
     label: String = "",
     leadingIcon: Painter? = null,
+    trailingIcon: Painter? = null,
+    onTrailingIconClick: () -> Unit = {},
     singleLine: Boolean = false
 ) {
     Column(modifier = modifier) {
         OutlinedTextField(
             value = value,
             onValueChange = { onValueChange(it) },
+            readOnly = isReadOnly,
             isError = errorMessage != null,
             label = { Text(text = label) },
             leadingIcon = if (leadingIcon != null) {
@@ -203,6 +211,18 @@ fun DefaultTextField(
                 null
             },
             singleLine = singleLine,
+            trailingIcon = if (trailingIcon != null) {
+                {
+                    IconButton(onClick = onTrailingIconClick) {
+                        Icon(
+                            painter = trailingIcon,
+                            contentDescription = null
+                        )
+                    }
+                }
+            } else {
+                null
+            },
             modifier = Modifier.fillMaxWidth()
         )
         TextFieldError(

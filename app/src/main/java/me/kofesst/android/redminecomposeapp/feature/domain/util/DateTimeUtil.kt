@@ -1,7 +1,13 @@
 package me.kofesst.android.redminecomposeapp.feature.domain.util
 
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
 import java.util.*
+
+fun String.formatDeadlineString(): Date {
+    val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
+    return format.parse(this) ?: Date(0)
+}
 
 fun Double.formatHours(): String {
     val formatter = DecimalFormat()
