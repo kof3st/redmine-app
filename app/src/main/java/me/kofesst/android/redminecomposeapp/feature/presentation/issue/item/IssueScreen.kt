@@ -112,7 +112,7 @@ fun IssueScreen(
                         .padding(20.dp)
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_add_24),
+                        painter = painterResource(R.drawable.ic_edit_24),
                         contentDescription = null
                     )
                 }
