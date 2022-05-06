@@ -229,6 +229,9 @@ fun AttachmentsSection(issue: Issue) {
                     append(attachment.filename)
                 }
                 pop()
+                withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
+                    append(" (${attachment.created_on.formatDate(showTime = true)})")
+                }
             }
 
             ClickableText(
