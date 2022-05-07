@@ -1,12 +1,11 @@
 package me.kofesst.android.redminecomposeapp.feature.presentation.auth
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -14,18 +13,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
+import me.kofesst.android.redminecomposeapp.feature.data.model.account.Account
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.domain.util.ValidationEvent
-import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
-import me.kofesst.android.redminecomposeapp.feature.presentation.OutlinedValidatedTextField
-import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
+import me.kofesst.android.redminecomposeapp.feature.presentation.*
 
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel = hiltViewModel(),
-    navController: NavController
+    navController: NavController,
 ) {
     LaunchedEffect(key1 = true) {
+        viewModel.loadAccounts()
         viewModel.validationEvents.collect { event ->
             when (event) {
                 is ValidationEvent.Success -> {
@@ -39,6 +38,11 @@ fun AuthScreen(
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
     if (isLoading) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+    }
+
+    val accounts by viewModel.accounts.collectAsState()
+    var selectedAccount by remember {
+        mutableStateOf<Account?>(null)
     }
 
     val formState = viewModel.formState
@@ -65,6 +69,31 @@ fun AuthScreen(
                     style = MaterialTheme.typography.h5
                 )
                 Spacer(modifier = Modifier.height(10.dp))
+                AnimatedVisibility(visible = accounts.isNotEmpty()) {
+                    Dropdown(
+                        items = accounts.map { account ->
+                            DropdownItem(
+                                text = account.name,
+                                onSelected = {
+                                    selectedAccount = account
+                                    viewModel.onFormEvent(
+                                        AuthFormEvent.HostChanged(
+                                            account.host
+                                        )
+                                    )
+                                    viewModel.onFormEvent(
+                                        AuthFormEvent.ApiKeyChanged(
+                                            account.apiKey
+                                        )
+                                    )
+                                }
+                            )
+                        },
+                        value = selectedAccount?.name ?: "",
+                        placeholder = "Аккаунт",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 OutlinedValidatedTextField(
                     value = formState.host,
                     onValueChange = { viewModel.onFormEvent(AuthFormEvent.HostChanged(it)) },

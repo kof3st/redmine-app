@@ -6,8 +6,11 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import me.kofesst.android.redminecomposeapp.feature.data.model.account.Account
 import me.kofesst.android.redminecomposeapp.feature.domain.usecase.UseCases
 import me.kofesst.android.redminecomposeapp.feature.domain.util.UserHolder
 import me.kofesst.android.redminecomposeapp.feature.domain.util.ValidationEvent
@@ -17,12 +20,21 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val useCases: UseCases,
-    private val userHolder: UserHolder
+    private val userHolder: UserHolder,
 ) : ViewModelBase() {
+    private val _accounts = MutableStateFlow<List<Account>>(listOf())
+    val accounts get() = _accounts.asStateFlow()
+
     var formState by mutableStateOf(AuthFormState())
 
     private val validationChannel = Channel<ValidationEvent>()
     val validationEvents = validationChannel.receiveAsFlow()
+
+    fun loadAccounts() {
+        startLoading {
+            _accounts.value = useCases.getAccounts()
+        }
+    }
 
     fun onFormEvent(event: AuthFormEvent) {
         when (event) {

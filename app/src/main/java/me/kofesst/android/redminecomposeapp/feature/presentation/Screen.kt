@@ -13,7 +13,7 @@ sealed class Screen(
     @StringRes val nameRes: Int,
     @DrawableRes val iconRes: Int = 0,
     val hasBottomBar: Boolean = false,
-    val hasBackButton: Boolean = false
+    val hasBackButton: Boolean = false,
 ) {
     companion object {
         val all
@@ -23,7 +23,9 @@ sealed class Screen(
                 Issue,
                 CreateEditIssue,
                 Projects,
-                Project
+                Project,
+                Accounts,
+                CreateEditAccount
             )
 
         val bottomBarScreens
@@ -121,6 +123,26 @@ sealed class Screen(
             navArgument("projectId") {
                 type = NavType.IntType
                 nullable = false
+            }
+        )
+    )
+
+    object Accounts : Screen(
+        route = "accounts-screen",
+        nameRes = R.string.accounts,
+        iconRes = R.drawable.ic_accounts_24,
+        hasBottomBar = true
+    )
+
+    object CreateEditAccount : Screen(
+        route = "create-edit-account",
+        nameRes = R.string.create_edit_account,
+        hasBackButton = true,
+        args = listOf(
+            navArgument("accountId") {
+                type = NavType.IntType
+                nullable = false
+                defaultValue = -1
             }
         )
     )

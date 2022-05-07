@@ -11,5 +11,10 @@ data class UseCases(
     val getStatuses: GetStatuses,
     val getMembers: GetMembers,
     val validateForEmptyField: ValidateForEmptyField,
-    val validateForNotNullField: ValidateForNotNullField
+    val validateForNotNullField: ValidateForNotNullField,
+    val getAccount: GetAccount,
+    val getAccounts: GetAccounts,
+    val addAccount: AddAccount,
+    val updateAccount: UpdateAccount,
+    val deleteAccount: DeleteAccount,
 )

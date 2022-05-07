@@ -23,6 +23,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import me.kofesst.android.redminecomposeapp.feature.presentation.accounts.edit.CreateEditAccountScreen
+import me.kofesst.android.redminecomposeapp.feature.presentation.accounts.list.AccountsScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.auth.AuthScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.edit.CreateEditIssueScreen
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.item.IssueScreen
@@ -79,7 +81,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun TopBar(
         currentScreen: Screen,
-        navController: NavController
+        navController: NavController,
     ) {
         TopAppBar(
             title = { Text(text = stringResource(currentScreen.nameRes)) },
@@ -102,7 +104,7 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ScreenNavHost(
         navController: NavHostController,
-        paddingValues: PaddingValues
+        paddingValues: PaddingValues,
     ) {
         NavHost(
             navController = navController,
@@ -116,12 +118,6 @@ class MainActivity : ComponentActivity() {
             }
             composable(route = Screen.Issues.route) {
                 IssuesScreen(
-                    navController = navController,
-                    viewModel = hiltViewModel(viewModelStoreOwner = this@MainActivity)
-                )
-            }
-            composable(route = Screen.Projects.route) {
-                ProjectsScreen(
                     navController = navController,
                     viewModel = hiltViewModel(viewModelStoreOwner = this@MainActivity)
                 )
@@ -145,7 +141,12 @@ class MainActivity : ComponentActivity() {
                     navController = navController
                 )
             }
-
+            composable(route = Screen.Projects.route) {
+                ProjectsScreen(
+                    navController = navController,
+                    viewModel = hiltViewModel(viewModelStoreOwner = this@MainActivity)
+                )
+            }
             composable(
                 route = Screen.Project.route,
                 arguments = Screen.Project.args
@@ -155,13 +156,28 @@ class MainActivity : ComponentActivity() {
                     navController = navController
                 )
             }
+            composable(route = Screen.Accounts.route) {
+                AccountsScreen(
+                    navController = navController,
+                    viewModel = hiltViewModel(viewModelStoreOwner = this@MainActivity)
+                )
+            }
+            composable(
+                route = Screen.CreateEditAccount.route,
+                arguments = Screen.CreateEditAccount.args
+            ) { entry ->
+                CreateEditAccountScreen(
+                    accountId = entry.arguments?.getInt("accountId") ?: -1,
+                    navController = navController
+                )
+            }
         }
     }
 
     @Composable
     fun BottomNavigationBar(
         currentScreen: Screen,
-        navController: NavController
+        navController: NavController,
     ) {
         AnimatedVisibility(
             visible = currentScreen.hasBottomBar,
@@ -198,7 +214,7 @@ class MainActivity : ComponentActivity() {
     fun BottomNavigationItemContent(
         selected: Boolean,
         icon: @Composable ColumnScope.() -> Unit,
-        text: String
+        text: String,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
