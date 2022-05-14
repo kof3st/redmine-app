@@ -35,6 +35,7 @@ abstract class IssuesHolderViewModel(
 
     protected suspend fun loadFilterValues() {
         _trackers.value = useCases.getTrackers()
+        _statuses.value = useCases.getStatuses()
     }
 
     fun onSortFilterEvent(event: SortFilterEvent) {
