@@ -8,15 +8,20 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Priority
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueFilterState
@@ -364,7 +369,30 @@ fun IssueItem(
                     text = "Статус: ${issue.status.name}",
                     style = MaterialTheme.typography.body1
                 )
+                if (issue.priority.id > 4) {
+                    IssuePriority(
+                        priority = issue.priority,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(CenterHorizontally)
+                            .padding(top = 15.dp)
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun IssuePriority(
+    priority: Priority,
+    modifier: Modifier = Modifier
+) {
+    Text(
+        text = "${priority.name} приоритет".uppercase(),
+        style = MaterialTheme.typography.body1,
+        color = Color.Red,
+        textAlign = TextAlign.Center,
+        modifier = modifier
+    )
 }
