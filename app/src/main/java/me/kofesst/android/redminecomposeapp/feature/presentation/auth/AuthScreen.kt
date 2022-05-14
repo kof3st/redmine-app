@@ -17,6 +17,7 @@ import me.kofesst.android.redminecomposeapp.feature.data.model.account.Account
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.feature.domain.util.ValidationEvent
 import me.kofesst.android.redminecomposeapp.feature.presentation.*
+import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHandler
 
 @Composable
 fun AuthScreen(
@@ -35,6 +36,8 @@ fun AuthScreen(
     }
 
     val loadingState by viewModel.loadingState
+    LoadingHandler(viewModel)
+
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
     if (isLoading) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

@@ -21,6 +21,7 @@ import me.kofesst.android.redminecomposeapp.feature.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
+import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHandler
 
 @Composable
 fun ProjectsScreen(
@@ -32,6 +33,8 @@ fun ProjectsScreen(
     }
 
     val loadingState by viewModel.loadingState
+    LoadingHandler(viewModel)
+
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
     val projects by viewModel.projects.collectAsState()

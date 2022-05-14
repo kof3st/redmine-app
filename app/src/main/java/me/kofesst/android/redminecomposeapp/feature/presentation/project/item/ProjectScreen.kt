@@ -22,6 +22,7 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.issue.SortFilte
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.IssuesColumn
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.SortFilterPanel
 import me.kofesst.android.redminecomposeapp.feature.presentation.issue.list.SortFilterPanelTail
+import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHandler
 
 @Composable
 fun ProjectScreen(
@@ -34,6 +35,8 @@ fun ProjectScreen(
     }
 
     val loadingState by viewModel.loadingState
+    LoadingHandler(viewModel)
+
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
     val issues by viewModel.issues.collectAsState()

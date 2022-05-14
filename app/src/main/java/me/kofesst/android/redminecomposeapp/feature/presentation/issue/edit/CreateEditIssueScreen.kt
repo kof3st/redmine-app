@@ -31,6 +31,7 @@ import me.kofesst.android.redminecomposeapp.feature.domain.util.ValidationEvent
 import me.kofesst.android.redminecomposeapp.feature.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.feature.domain.util.formatDeadlineString
 import me.kofesst.android.redminecomposeapp.feature.presentation.*
+import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHandler
 import java.util.*
 
 @RequiresApi(Build.VERSION_CODES.N)
@@ -53,6 +54,8 @@ fun CreateEditIssueScreen(
     }
 
     val loadingState by viewModel.loadingState
+    LoadingHandler(viewModel)
+
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
     if (isLoading) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())

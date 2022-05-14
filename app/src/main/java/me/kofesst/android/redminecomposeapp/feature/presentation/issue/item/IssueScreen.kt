@@ -38,6 +38,7 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.ClickableCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultCard
 import me.kofesst.android.redminecomposeapp.feature.presentation.DefaultSwipeRefresh
 import me.kofesst.android.redminecomposeapp.feature.presentation.Screen
+import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHandler
 
 @Composable
 fun IssueScreen(
@@ -50,6 +51,8 @@ fun IssueScreen(
     }
 
     val loadingState by viewModel.loadingState
+    LoadingHandler(viewModel)
+
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
     val issue by viewModel.issue.collectAsState()
