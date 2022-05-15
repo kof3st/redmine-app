@@ -134,13 +134,15 @@ fun JournalsSection(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        issue.journals.forEach { journal ->
-            JournalItem(
-                journal,
-                statuses,
-                priorities
-            )
-        }
+        issue.journals
+            .sortedByDescending { it.id }
+            .forEach { journal ->
+                JournalItem(
+                    journal,
+                    statuses,
+                    priorities
+                )
+            }
     }
 }
 
