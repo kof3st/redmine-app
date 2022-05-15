@@ -8,7 +8,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,8 +21,8 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Priority
-import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
+import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueFilterState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.IssueSortState
 import me.kofesst.android.redminecomposeapp.feature.domain.util.LoadingResult
@@ -35,7 +34,7 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHan
 @Composable
 fun IssuesScreen(
     viewModel: IssuesViewModel,
-    navController: NavController
+    navController: NavController,
 ) {
     LaunchedEffect(key1 = true) {
         viewModel.refreshData()
@@ -108,6 +107,13 @@ fun IssuesScreen(
             }
             IssuesColumn(
                 issues = issues,
+                onEndReached = {
+                    if (loadingState.state != LoadingResult.State.RUNNING &&
+                        viewModel.shouldLoadMore
+                    ) {
+                        viewModel.loadNextPage()
+                    }
+                },
                 navController = navController
             )
         }
@@ -148,7 +154,7 @@ fun SortFilterPanel(
     filterState: IssueFilterState?,
     onFilterStateChanged: (IssueFilterState?) -> Unit,
     trackers: List<Tracker>,
-    statuses: List<Status>
+    statuses: List<Status>,
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -182,7 +188,7 @@ fun FilterStateDropdown(
     filterState: IssueFilterState?,
     onStateChanged: (IssueFilterState?) -> Unit,
     trackers: List<Tracker>,
-    statuses: List<Status>
+    statuses: List<Status>,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -263,7 +269,7 @@ fun FilterStateDropdown(
 @Composable
 fun SortStateDropdowns(
     sortState: IssueSortState,
-    onStateChanged: (IssueSortState) -> Unit
+    onStateChanged: (IssueSortState) -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(5.dp),
@@ -313,13 +319,18 @@ fun SortStateDropdowns(
 @Composable
 fun IssuesColumn(
     issues: List<Issue>,
-    navController: NavController
+    onEndReached: () -> Unit = {},
+    navController: NavController,
 ) {
     LazyColumn(
         state = rememberLazyListState(),
         modifier = Modifier.fillMaxSize()
     ) {
-        itemsIndexed(issues) { _, issue ->
+        itemsIndexed(issues) { index, issue ->
+            if (index == issues.lastIndex) {
+                onEndReached()
+            }
+
             IssueItem(
                 issue = issue,
                 onItemClick = {
@@ -337,7 +348,7 @@ fun IssuesColumn(
 @Composable
 fun IssueItem(
     issue: Issue,
-    onItemClick: () -> Unit
+    onItemClick: () -> Unit,
 ) {
     Box(modifier = Modifier.padding(10.dp)) {
         ClickableCard(
@@ -386,7 +397,7 @@ fun IssueItem(
 @Composable
 fun IssuePriority(
     priority: Priority,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Text(
         text = "${priority.name} приоритет".uppercase(),

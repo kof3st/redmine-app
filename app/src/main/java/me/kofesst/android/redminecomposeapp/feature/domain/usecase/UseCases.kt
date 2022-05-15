@@ -3,7 +3,9 @@ package me.kofesst.android.redminecomposeapp.feature.domain.usecase
 data class UseCases(
     val getCurrentUser: GetCurrentUser,
     val getProjects: GetProjects,
-    val getIssues: GetIssues,
+    val getProjectIssues: GetProjectIssues,
+    val getOwnedIssues: GetOwnedIssues,
+    val getAssignedIssues: GetAssignedIssues,
     val getIssueDetails: GetIssueDetails,
     val createIssue: CreateIssue,
     val updateIssue: UpdateIssue,

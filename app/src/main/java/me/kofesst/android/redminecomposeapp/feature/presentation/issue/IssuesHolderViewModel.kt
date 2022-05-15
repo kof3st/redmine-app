@@ -16,7 +16,7 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.ViewModelBase
 abstract class IssuesHolderViewModel(
     protected val useCases: UseCases
 ) : ViewModelBase() {
-    protected abstract val sourceIssues: MutableStateFlow<List<Issue>>
+    protected abstract val source: List<Issue>
 
     private val _filteredIssues = MutableStateFlow<List<Issue>>(listOf())
     val issues get() = _filteredIssues.asStateFlow()
@@ -55,20 +55,20 @@ abstract class IssuesHolderViewModel(
             is IssueSortState.ById -> {
                 when (sortState.value.orderType) {
                     is OrderType.Ascending -> {
-                        sourceIssues.value.sortedBy { it.id }
+                        source.sortedBy { it.id }
                     }
                     is OrderType.Descending -> {
-                        sourceIssues.value.sortedByDescending { it.id }
+                        source.sortedByDescending { it.id }
                     }
                 }
             }
             is IssueSortState.ByPriority -> {
                 when (sortState.value.orderType) {
                     is OrderType.Ascending -> {
-                        sourceIssues.value.sortedBy { it.priority.id }
+                        source.sortedBy { it.priority.id }
                     }
                     is OrderType.Descending -> {
-                        sourceIssues.value.sortedByDescending { it.priority.id }
+                        source.sortedByDescending { it.priority.id }
                     }
                 }
             }

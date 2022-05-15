@@ -3,6 +3,7 @@ package me.kofesst.android.redminecomposeapp.feature.data.repository
 import com.google.gson.GsonBuilder
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.CreateIssueBody
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.IssuesResponse
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.membership.Membership
 import me.kofesst.android.redminecomposeapp.feature.data.model.project.Project
@@ -21,7 +22,7 @@ import java.net.UnknownHostException
 import java.util.*
 
 class RedmineRepositoryImpl(
-    private val userHolder: UserHolder
+    private val userHolder: UserHolder,
 ) : RedmineRepository {
 
     @Throws(Exception::class)
@@ -39,10 +40,34 @@ class RedmineRepositoryImpl(
     }
 
     @Throws(Exception::class)
-    override suspend fun getIssues(): List<Issue> {
+    override suspend fun getProjectIssues(projectId: Int, offset: Int): IssuesResponse {
         return handleResponse(userHolder.host) { api ->
-            api.getIssues(userHolder.apiKey)
-        }.issues
+            api.getProjectIssues(
+                apiKey = userHolder.apiKey,
+                projectId = projectId,
+                offset = offset
+            )
+        }
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getOwnedIssues(offset: Int): IssuesResponse {
+        return handleResponse(userHolder.host) { api ->
+            api.getOwnedIssues(
+                apiKey = userHolder.apiKey,
+                offset = offset
+            )
+        }
+    }
+
+    @Throws(Exception::class)
+    override suspend fun getAssignedIssues(offset: Int): IssuesResponse {
+        return handleResponse(userHolder.host) { api ->
+            api.getAssignedIssues(
+                apiKey = userHolder.apiKey,
+                offset = offset
+            )
+        }
     }
 
     @Throws(Exception::class)
@@ -62,7 +87,7 @@ class RedmineRepositoryImpl(
     @Throws(Exception::class)
     override suspend fun updateIssue(
         issueId: Int,
-        issue: CreateIssueBody
+        issue: CreateIssueBody,
     ) {
         handleRequest(userHolder.host) { api ->
             api.updateIssue(userHolder.apiKey, issueId, issue)
@@ -93,7 +118,7 @@ class RedmineRepositoryImpl(
     @Throws(Exception::class)
     private suspend fun handleRequest(
         host: String,
-        request: suspend (RedmineApi) -> Unit
+        request: suspend (RedmineApi) -> Unit,
     ) {
         try {
             request(buildApi(host))
@@ -109,7 +134,7 @@ class RedmineRepositoryImpl(
     @Throws(Exception::class)
     private suspend fun <T> handleResponse(
         host: String,
-        request: suspend (RedmineApi) -> Response<T>
+        request: suspend (RedmineApi) -> Response<T>,
     ): T {
         try {
             val response = request(buildApi(host))

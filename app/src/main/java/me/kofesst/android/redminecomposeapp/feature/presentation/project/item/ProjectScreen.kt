@@ -82,6 +82,13 @@ fun ProjectScreen(
                 }
                 IssuesColumn(
                     issues = issues,
+                    onEndReached = {
+                        if (loadingState.state != LoadingResult.State.RUNNING &&
+                            viewModel.shouldLoadMore
+                        ) {
+                            viewModel.loadNextPage(projectId)
+                        }
+                    },
                     navController = navController
                 )
             }

@@ -49,7 +49,9 @@ object AppModule {
         return UseCases(
             getCurrentUser = GetCurrentUser(repository),
             getProjects = GetProjects(repository),
-            getIssues = GetIssues(repository),
+            getProjectIssues = GetProjectIssues(repository),
+            getOwnedIssues = GetOwnedIssues(repository),
+            getAssignedIssues = GetAssignedIssues(repository),
             getIssueDetails = GetIssueDetails(repository),
             createIssue = CreateIssue(repository),
             updateIssue = UpdateIssue(repository),

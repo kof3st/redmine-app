@@ -27,8 +27,22 @@ interface RedmineApi {
     ): Response<ProjectsResponse>
 
     @GET("/issues.json?status_id=*")
-    suspend fun getIssues(
-        @Header(API_KEY_HEADER) apiKey: String
+    suspend fun getProjectIssues(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Query("project_id") projectId: Int,
+        @Query("offset") offset: Int
+    ): Response<IssuesResponse>
+
+    @GET("/issues.json?status_id=*&author_id=me")
+    suspend fun getOwnedIssues(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Query("offset") offset: Int
+    ): Response<IssuesResponse>
+
+    @GET("/issues.json?status_id=*&assigned_to_id=me")
+    suspend fun getAssignedIssues(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Query("offset") offset: Int
     ): Response<IssuesResponse>
 
     @GET("/issues/{issueId}.json?include=children,attachments,journals")
