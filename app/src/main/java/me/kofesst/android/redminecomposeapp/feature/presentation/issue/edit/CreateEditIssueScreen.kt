@@ -2,8 +2,6 @@ package me.kofesst.android.redminecomposeapp.feature.presentation.issue.edit
 
 import android.app.DatePickerDialog
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -34,7 +32,6 @@ import me.kofesst.android.redminecomposeapp.feature.presentation.*
 import me.kofesst.android.redminecomposeapp.feature.presentation.util.LoadingHandler
 import java.util.*
 
-@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun CreateEditIssueScreen(
     issueId: Int,
@@ -249,7 +246,6 @@ fun StatusesField(
     )
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 @Composable
 fun DeadlineField(
     formState: IssueFormState,
@@ -306,7 +302,6 @@ fun DeadlineField(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
 fun showDatePicker(
     context: Context,
     selected: Date? = null,
