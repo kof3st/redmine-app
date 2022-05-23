@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +44,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+                    val viewModel: MainViewModel = hiltViewModel()
+                    val isSignedIn = viewModel.userHolder.currentUser != null
+
                     val scaffoldState = rememberScaffoldState()
 
                     val navController = rememberNavController()
@@ -58,7 +62,13 @@ class MainActivity : ComponentActivity() {
                         topBar = {
                             TopBar(
                                 currentScreen = currentScreen,
-                                navController = navController
+                                navController = navController,
+                                isSignedIn = isSignedIn,
+                                onSessionClearClick = {
+                                    viewModel.clearSession {
+                                        navController.navigate(Screen.Auth.route)
+                                    }
+                                }
                             )
                         },
                         bottomBar = {
@@ -82,6 +92,8 @@ class MainActivity : ComponentActivity() {
     fun TopBar(
         currentScreen: Screen,
         navController: NavController,
+        isSignedIn: Boolean,
+        onSessionClearClick: () -> Unit,
     ) {
         TopAppBar(
             title = { Text(text = stringResource(currentScreen.nameRes)) },
@@ -96,6 +108,16 @@ class MainActivity : ComponentActivity() {
                 }
             } else {
                 null
+            },
+            actions = {
+                if (isSignedIn) {
+                    IconButton(onClick = onSessionClearClick) {
+                        Icon(
+                            imageVector = Icons.Outlined.ExitToApp,
+                            contentDescription = "Sign out"
+                        )
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth()
         )

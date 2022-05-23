@@ -1,6 +1,10 @@
 package me.kofesst.android.redminecomposeapp.di
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -42,9 +46,18 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(produceFile = {
+            context.preferencesDataStoreFile("app_prefs")
+        })
+    }
+
+    @Provides
+    @Singleton
     fun provideUseCases(
         repository: RedmineRepository,
         database: AppDatabase,
+        dataStore: DataStore<Preferences>,
     ): UseCases {
         return UseCases(
             getCurrentUser = GetCurrentUser(repository),
@@ -64,7 +77,10 @@ object AppModule {
             getAccounts = GetAccounts(database),
             addAccount = AddAccount(database),
             updateAccount = UpdateAccount(database),
-            deleteAccount = DeleteAccount(database)
+            deleteAccount = DeleteAccount(database),
+            saveSession = SaveSession(dataStore),
+            restoreSession = RestoreSession(dataStore),
+            clearSession = ClearSession(dataStore)
         )
     }
 }

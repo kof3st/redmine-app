@@ -25,7 +25,7 @@ fun AuthScreen(
     navController: NavController,
 ) {
     LaunchedEffect(key1 = true) {
-        viewModel.loadAccounts()
+        viewModel.checkForSession()
         viewModel.validationEvents.collect { event ->
             when (event) {
                 is ValidationEvent.Success -> {

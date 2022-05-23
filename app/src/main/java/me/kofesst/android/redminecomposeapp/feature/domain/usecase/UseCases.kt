@@ -19,4 +19,7 @@ data class UseCases(
     val addAccount: AddAccount,
     val updateAccount: UpdateAccount,
     val deleteAccount: DeleteAccount,
+    val saveSession: SaveSession,
+    val restoreSession: RestoreSession,
+    val clearSession: ClearSession,
 )

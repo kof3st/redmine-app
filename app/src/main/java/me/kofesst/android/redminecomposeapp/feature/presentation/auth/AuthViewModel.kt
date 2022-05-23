@@ -30,10 +30,23 @@ class AuthViewModel @Inject constructor(
     private val validationChannel = Channel<ValidationEvent>()
     val validationEvents = validationChannel.receiveAsFlow()
 
-    fun loadAccounts() {
+    suspend fun checkForSession() {
         startLoading {
-            _accounts.value = useCases.getAccounts()
+            val session = useCases.restoreSession()
+            if (session != null) {
+                formState = AuthFormState(
+                    host = session.first,
+                    apiKey = session.second
+                )
+                onDataSubmit()
+            } else {
+                loadAccounts()
+            }
         }
+    }
+
+    private suspend fun loadAccounts() {
+        _accounts.value = useCases.getAccounts()
     }
 
     fun onFormEvent(event: AuthFormEvent) {
@@ -73,6 +86,10 @@ class AuthViewModel @Inject constructor(
                 }
             ) {
                 userHolder.currentUser = useCases.getCurrentUser(
+                    host = formState.host,
+                    apiKey = formState.apiKey
+                )
+                useCases.saveSession(
                     host = formState.host,
                     apiKey = formState.apiKey
                 )
