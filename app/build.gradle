@@ -48,6 +48,13 @@ android {
 }
 
 dependencies {
+    // Xml converter
+    def tikxml_version = "0.8.13"
+    implementation "com.tickaroo.tikxml:annotation:$tikxml_version"
+    implementation "com.tickaroo.tikxml:core:$tikxml_version"
+    implementation "com.tickaroo.tikxml:retrofit-converter:$tikxml_version"
+    kapt "com.tickaroo.tikxml:processor:$tikxml_version"
+
     // Data store
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 

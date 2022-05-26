@@ -29,7 +29,7 @@ data class Issue(
     val status: Status,
     var subject: String,
     var tracker: Tracker,
-    val updated_on: DateTime
+    val updated_on: DateTime,
 ) {
     val deadline
         get(): Date? {
@@ -37,7 +37,7 @@ data class Issue(
                 customField.id == 10
             } ?: return null
 
-            if (customField.value.isBlank()) return null
+            if (customField.value?.isBlank() != false) return null
 
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
             return format.parse(customField.value) ?: Date(0)

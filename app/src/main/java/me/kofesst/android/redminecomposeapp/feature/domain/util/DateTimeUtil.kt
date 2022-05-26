@@ -4,6 +4,11 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
+fun Date.format(format: String): String {
+    val formatter = SimpleDateFormat(format, Locale.ROOT)
+    return formatter.format(this)
+}
+
 fun String.formatDeadlineString(): Date {
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
     return format.parse(this) ?: Date(0)

@@ -1,6 +1,8 @@
 package me.kofesst.android.redminecomposeapp.feature.data.repository
 
 import com.google.gson.GsonBuilder
+import com.tickaroo.tikxml.TikXml
+import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.CreateIssueBody
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
 import me.kofesst.android.redminecomposeapp.feature.data.model.issue.IssuesResponse
@@ -15,6 +17,7 @@ import me.kofesst.android.redminecomposeapp.feature.data.repository.util.DateTim
 import me.kofesst.android.redminecomposeapp.feature.domain.model.CurrentUser
 import me.kofesst.android.redminecomposeapp.feature.domain.repository.RedmineRepository
 import me.kofesst.android.redminecomposeapp.feature.domain.util.UserHolder
+import retrofit2.Converter
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -89,7 +92,10 @@ class RedmineRepositoryImpl(
         issueId: Int,
         issue: CreateIssueBody,
     ) {
-        handleRequest(userHolder.host) { api ->
+        handleRequest(
+            host = userHolder.host,
+            useXml = true
+        ) { api ->
             api.updateIssue(userHolder.apiKey, issueId, issue)
         }
     }
@@ -118,10 +124,16 @@ class RedmineRepositoryImpl(
     @Throws(Exception::class)
     private suspend fun handleRequest(
         host: String,
+        useXml: Boolean = false,
         request: suspend (RedmineApi) -> Unit,
     ) {
         try {
-            request(buildApi(host))
+            request(
+                buildApi(
+                    host = host,
+                    useXml = useXml
+                )
+            )
         } catch (hostException: UnknownHostException) {
             throw Exception("Хост не найден")
         } catch (nullException: NullPointerException) {
@@ -157,14 +169,26 @@ class RedmineRepositoryImpl(
         }
     }
 
-    private fun buildApi(host: String): RedmineApi {
-        val gson = GsonBuilder()
-            .registerTypeAdapter(DateTime::class.java, DateTimeDeserializer())
-            .registerTypeAdapter(Date::class.java, DateDeserializer())
-            .create()
+    private fun buildApi(
+        host: String,
+        useXml: Boolean = false,
+    ): RedmineApi {
+        val converterFactory: Converter.Factory = if (useXml) {
+            TikXmlConverterFactory.create(
+                TikXml.Builder()
+                    .build()
+            )
+        } else {
+            GsonConverterFactory.create(
+                GsonBuilder()
+                    .registerTypeAdapter(DateTime::class.java, DateTimeDeserializer())
+                    .registerTypeAdapter(Date::class.java, DateDeserializer())
+                    .create()
+            )
+        }
 
         val retrofit = Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(converterFactory)
             .baseUrl("https://$host")
             .build()
 

@@ -6,7 +6,11 @@ import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun Pair<String, String?>.getValuesText(title: String): String {
+fun Pair<String?, String?>.getValuesText(title: String): String {
+    if (this.first == null) {
+        return "Параметр %s удалён".format(title)
+    }
+
     val pattern = "Параметр %s изменился %s%s"
     val hasOldValuePattern = "с \"%s\" "
     val newValuePattern = "на \"%s\""
@@ -24,14 +28,14 @@ fun Pair<String, String?>.getValuesText(title: String): String {
 
 fun Detail.getInfoText(
     statuses: List<Status>,
-    priorities: List<Priority>
+    priorities: List<Priority>,
 ): String {
     return when (this.property) {
         DetailType.Attachment.propertyName -> {
             "Файл %s добавлен".format(this.new_value)
         }
         DetailType.CustomField.propertyName -> {
-            val values: Pair<String, String?>
+            val values: Pair<String?, String?>
             val cfTitle: String
 
             when (this.name) {
@@ -48,7 +52,7 @@ fun Detail.getInfoText(
             return values.getValuesText(cfTitle)
         }
         DetailType.Attribute.propertyName -> {
-            val values: Pair<String, String?>
+            val values: Pair<String?, String?>
             val attrTitle: String
 
             when (this.name) {
@@ -102,17 +106,19 @@ sealed class Attribute(val name: String, val title: String) {
 
         fun getValuesText(
             statuses: List<Status>,
-            newValue: String,
-            oldValue: String?
-        ): Pair<String, String?> {
-            return getValueText(statuses, newValue) to oldValue?.let {
+            newValue: String?,
+            oldValue: String?,
+        ): Pair<String?, String?> {
+            return newValue?.let {
+                getValueText(statuses, newValue)
+            } to oldValue?.let {
                 getValueText(statuses, it)
             }
         }
     }
 
     object DoneRatioAttr : Attribute("done_ratio", "Готовность") {
-        fun getValuesText(newValue: String, oldValue: String?): Pair<String, String?> {
+        fun getValuesText(newValue: String?, oldValue: String?): Pair<String?, String?> {
             return "$newValue%" to oldValue?.let {
                 "$oldValue%"
             }
@@ -130,10 +136,12 @@ sealed class Attribute(val name: String, val title: String) {
 
         fun getValuesText(
             priorities: List<Priority>,
-            newValue: String,
-            oldValue: String?
-        ): Pair<String, String?> {
-            return getValueText(priorities, newValue) to oldValue?.let {
+            newValue: String?,
+            oldValue: String?,
+        ): Pair<String?, String?> {
+            return newValue?.let {
+                getValueText(priorities, newValue)
+            } to oldValue?.let {
                 getValueText(priorities, it)
             }
         }
@@ -155,11 +163,13 @@ sealed class Attribute(val name: String, val title: String) {
 sealed class CustomField(val name: String, val title: String) {
     object Deadline : CustomField("10", "Дедлайн") {
         fun getValuesText(
-            newValue: String,
-            oldValue: String?
-        ): Pair<String, String?> {
+            newValue: String?,
+            oldValue: String?,
+        ): Pair<String?, String?> {
             val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
-            return (format.parse(newValue)?.formatDate() ?: "Некорректная дата") to oldValue?.let {
+            return newValue?.let {
+                format.parse(newValue)?.formatDate() ?: "Некорректная дата"
+            } to oldValue?.let {
                 if (it.isBlank()) return@let null
                 (format.parse(it)?.formatDate() ?: "Некорректная дата")
             }

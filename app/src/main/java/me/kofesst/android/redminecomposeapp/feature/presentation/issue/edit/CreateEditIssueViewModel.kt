@@ -11,7 +11,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import me.kofesst.android.redminecomposeapp.feature.data.model.issue.*
+import me.kofesst.android.redminecomposeapp.feature.data.model.CustomField
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.CreateIssueBody
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Issue
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Priority
+import me.kofesst.android.redminecomposeapp.feature.data.model.issue.Tracker
 import me.kofesst.android.redminecomposeapp.feature.data.model.membership.User
 import me.kofesst.android.redminecomposeapp.feature.data.model.status.Status
 import me.kofesst.android.redminecomposeapp.feature.domain.usecase.UseCases
@@ -24,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateEditIssueViewModel @Inject constructor(
     private val useCases: UseCases,
-    private val userHolder: UserHolder
+    private val userHolder: UserHolder,
 ) : ViewModelBase() {
     private var projectId: Int = -1
 
@@ -153,17 +157,19 @@ class CreateEditIssueViewModel @Inject constructor(
                 }
             ) {
                 val issueBody = CreateIssueBody(
-                    CreateIssueDetails(
-                        project_id = projectId,
-                        subject = formState.subject,
-                        description = formState.description ?: "",
-                        assigned_to_id = formState.assignedTo?.id.toString() ?: "",
-                        priority_id = formState.priority!!.id,
-                        tracker_id = formState.tracker!!.id,
-                        status_id = formState.status?.id ?: 1,
-                        notes = formState.changesNotes
+                    project_id = projectId,
+                    subject = formState.subject,
+                    description = formState.description ?: "",
+                    assigned_to_id = formState.assignedTo?.id?.toString() ?: "",
+                    priority_id = formState.priority!!.id,
+                    tracker_id = formState.tracker!!.id,
+                    status_id = formState.status?.id ?: 1,
+                    notes = formState.changesNotes
+                ).apply {
+                    addCustomField(
+                        CustomField.getDeadline(formState.deadline)
                     )
-                )
+                }
 
                 editing.value?.run {
                     useCases.updateIssue(

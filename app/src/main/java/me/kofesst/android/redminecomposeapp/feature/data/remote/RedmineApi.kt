@@ -51,12 +51,14 @@ interface RedmineApi {
         @Path("issueId") issueId: Int
     ): Response<IssueDetailsResponse>
 
+    @Headers("Content-Type: application/xml")
     @POST("/issues.json")
     suspend fun createIssue(
         @Header(API_KEY_HEADER) apiKey: String,
         @Body issue: CreateIssueBody
     )
 
+    @Headers("Content-Type: application/xml")
     @PUT("/issues/{issueId}.json")
     suspend fun updateIssue(
         @Header(API_KEY_HEADER) apiKey: String,
