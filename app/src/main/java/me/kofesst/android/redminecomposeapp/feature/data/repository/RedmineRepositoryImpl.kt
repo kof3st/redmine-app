@@ -82,7 +82,10 @@ class RedmineRepositoryImpl(
 
     @Throws(Exception::class)
     override suspend fun createIssue(issue: CreateIssueBody) {
-        handleRequest(userHolder.host) { api ->
+        handleRequest(
+            host = userHolder.host,
+            useXml = true
+        ) { api ->
             api.createIssue(userHolder.apiKey, issue)
         }
     }
