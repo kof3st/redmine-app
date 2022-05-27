@@ -39,7 +39,7 @@ interface RedmineApi {
         @Query("offset") offset: Int
     ): Response<IssuesResponse>
 
-    @GET("/issues.json?status_id=*&assigned_to_id=me")
+    @GET("/issues.json?status_id=open&assigned_to_id=me")
     suspend fun getAssignedIssues(
         @Header(API_KEY_HEADER) apiKey: String,
         @Query("offset") offset: Int
