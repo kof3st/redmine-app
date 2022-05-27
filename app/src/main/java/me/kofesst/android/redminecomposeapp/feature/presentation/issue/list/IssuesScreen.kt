@@ -235,34 +235,37 @@ fun FilterStateDropdown(
                 }
             }
         } ?: listOf()
-        Dropdown(
-            items = filterValues.map { value ->
-                DropdownItem(
-                    text = value.toString(),
-                    onSelected = {
-                        when (filterState) {
-                            is IssueFilterState.ByTracker -> {
-                                onStateChanged(
-                                    filterState.copy(
-                                        tracker = value as Tracker
+
+        if (filterValues.isNotEmpty()) {
+            Dropdown(
+                items = filterValues.map { value ->
+                    DropdownItem(
+                        text = value.toString(),
+                        onSelected = {
+                            when (filterState) {
+                                is IssueFilterState.ByTracker -> {
+                                    onStateChanged(
+                                        filterState.copy(
+                                            tracker = value as Tracker
+                                        )
                                     )
-                                )
-                            }
-                            is IssueFilterState.ByStatus -> {
-                                onStateChanged(
-                                    filterState.copy(
-                                        status = value as Status
+                                }
+                                is IssueFilterState.ByStatus -> {
+                                    onStateChanged(
+                                        filterState.copy(
+                                            status = value as Status
+                                        )
                                     )
-                                )
+                                }
+                                else -> {}
                             }
-                            else -> {}
                         }
-                    }
-                )
-            },
-            value = filterState?.item?.toString() ?: "",
-            modifier = Modifier.fillMaxWidth()
-        )
+                    )
+                },
+                value = filterState?.item?.toString() ?: "",
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
