@@ -2,188 +2,225 @@ package me.kofesst.android.redminecomposeapp.domain.util
 
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.model.journal.JournalDetails
-import java.text.SimpleDateFormat
-import java.util.*
 
-fun Pair<String?, String?>.getValuesText(title: String): String {
-    if (this.first == null) {
-        return "Параметр %s удалён".format(title)
+private val properties = listOf(
+    DetailProperty.Attachment,
+    DetailProperty.CustomField.Deadline,
+    DetailProperty.Attribute.DoneRatio,
+    DetailProperty.Attribute.Status,
+    DetailProperty.Attribute.Priority,
+    DetailProperty.Attribute.Tracker,
+    DetailProperty.Attribute.Description,
+    DetailProperty.Attribute.AssignedTo
+)
+
+private fun findProperty(details: JournalDetails): DetailProperty? {
+    val property = properties.filter { it.propertyName == details.property }
+    if (property.isEmpty()) {
+        return null
     }
 
-    val pattern = "Параметр %s изменился %s%s"
-    val hasOldValuePattern = "с \"%s\" "
-    val newValuePattern = "на \"%s\""
+    if (property.first() is DetailProperty.CustomField) {
+        return property.firstOrNull {
+            val cf = it as DetailProperty.CustomField
+            cf.name == details.name
+        }
+    }
 
-    return pattern.format(
-        title,
-        if (this.second != null) {
-            hasOldValuePattern.format(this.second)
-        } else {
-            ""
-        },
-        newValuePattern.format(this.first)
-    )
+    if (property.first() is DetailProperty.Attribute) {
+        return property.firstOrNull {
+            val attr = it as DetailProperty.Attribute
+            attr.name == details.name
+        }
+    }
+
+    return property.firstOrNull()
 }
 
-fun JournalDetails.getInfoText(
+fun JournalDetails.parse(
     statuses: List<IdName>,
     priorities: List<IdName>,
+    trackers: List<IdName>,
 ): String {
-    return when (this.property) {
-        DetailType.Attachment.propertyName -> {
-            "Файл %s добавлен".format(this.newValue)
-        }
-        DetailType.CustomField.propertyName -> {
-            val values: Pair<String?, String?>
-            val cfTitle: String
-
-            when (this.name) {
-                CustomField.Deadline.name -> {
-                    values = CustomField.Deadline.getValuesText(
-                        this.newValue,
-                        this.oldValue
-                    )
-                    cfTitle = CustomField.Deadline.title
-                }
-                else -> return "Незнакомый айди кастомного поля"
-            }
-
-            return values.getValuesText(cfTitle)
-        }
-        DetailType.Attribute.propertyName -> {
-            val values: Pair<String?, String?>
-            val attrTitle: String
-
-            when (this.name) {
-                Attribute.StatusAttr.name -> {
-                    values = Attribute.StatusAttr.getValuesText(
-                        statuses,
-                        this.newValue,
-                        this.oldValue
-                    )
-                    attrTitle = Attribute.StatusAttr.title
-                }
-                Attribute.DoneRatioAttr.name -> {
-                    values = Attribute.DoneRatioAttr.getValuesText(
-                        this.newValue,
-                        this.oldValue
-                    )
-                    attrTitle = Attribute.DoneRatioAttr.title
-                }
-                Attribute.PriorityAttr.name -> {
-                    values = Attribute.PriorityAttr.getValuesText(
-                        priorities,
-                        this.newValue,
-                        this.oldValue
-                    )
-                    attrTitle = Attribute.PriorityAttr.title
-                }
-                Attribute.DescriptionAttr.name -> {
-                    return Attribute.DescriptionAttr.getText()
-                }
-                Attribute.AssignedToAttr.name -> {
-                    return Attribute.AssignedToAttr.getText()
-                }
-                else -> return "Незнакомое имя атрибута"
-            }
-
-            return values.getValuesText(attrTitle)
-        }
-        else -> "Незнакомое значение"
-    }
+    val property = findProperty(this) ?: return "NotFound"
+    return property.parseDetailsText(this, statuses, priorities, trackers)
 }
 
-sealed class Attribute(val name: String, val title: String) {
-    object StatusAttr : Attribute("status_id", "Статус") {
-        private fun getValueText(
+sealed class DetailProperty(val propertyName: String, private val title: String) {
+    companion object {
+        private const val PropertyDeletedFormat = "Параметр \"%s\" удалён"
+        private const val NewPropertyFormat = "Параметр \"%s\" изменился на \"%s\""
+        private const val PropertyReplacedFormat = "Параметр \"%s\" изменился с \"%s\" на \"%s\""
+        protected const val AttachmentFormat = "Файл \"%s\" добавлен"
+        protected const val DescriptionFormat = "Описание задачи изменилось"
+        protected const val AssignedToFormat = "Исполнитель задачи изменился"
+    }
+
+    protected open val customParse: ((JournalDetails) -> String)?
+        get() = null
+
+    fun parseDetailsText(
+        details: JournalDetails,
+        statuses: List<IdName>,
+        priorities: List<IdName>,
+        trackers: List<IdName>,
+    ): String {
+        if (details.newValue == null) {
+            return PropertyDeletedFormat.format(title)
+        }
+
+        if (customParse != null) {
+            return customParse!!.invoke(details)
+        }
+
+        val oldValueName = parseValue(details.oldValue, statuses, priorities, trackers)
+        val newValueName = parseValue(details.newValue, statuses, priorities, trackers)
+
+        if (details.oldValue == null) {
+            if (newValueName == null) {
+                return "Error #1"
+            }
+
+            return NewPropertyFormat.format(title, newValueName)
+        }
+
+        if (oldValueName == null) {
+            return "Error #2"
+        }
+
+        if (newValueName == null) {
+            return "Error #3"
+        }
+
+        return PropertyReplacedFormat.format(title, oldValueName, newValueName)
+    }
+
+    protected abstract fun parseValue(
+        value: String?,
+        statuses: List<IdName>,
+        priorities: List<IdName>,
+        trackers: List<IdName>,
+    ): String?
+
+    object Attachment : DetailProperty("attachment", "Вложение") {
+        override val customParse: (JournalDetails) -> String
+            get() = {
+                if (it.newValue == null) {
+                    "Error #4"
+                } else {
+                    AttachmentFormat.format(it.newValue)
+                }
+            }
+
+        override fun parseValue(
+            value: String?,
             statuses: List<IdName>,
-            value: String,
-        ): String {
-            val statusId = value.toIntOrNull() ?: return "Некорректный id статуса"
-            val status = statuses.firstOrNull {
-                it.id == statusId
-            } ?: return "Некорректный id статуса"
-            return status.name
-        }
-
-        fun getValuesText(
-            statuses: List<IdName>,
-            newValue: String?,
-            oldValue: String?,
-        ): Pair<String?, String?> {
-            return newValue?.let {
-                getValueText(statuses, newValue)
-            } to oldValue?.let {
-                getValueText(statuses, it)
-            }
-        }
-    }
-
-    object DoneRatioAttr : Attribute("done_ratio", "Готовность") {
-        fun getValuesText(newValue: String?, oldValue: String?): Pair<String?, String?> {
-            return "$newValue%" to oldValue?.let {
-                "$oldValue%"
-            }
-        }
-    }
-
-    object PriorityAttr : Attribute("priority_id", "Приоритет") {
-        private fun getValueText(
             priorities: List<IdName>,
-            value: String,
-        ): String {
-            val priorityId = value.toIntOrNull() ?: return "Некорректный id приоритета"
-            val priority = priorities.firstOrNull {
-                it.id == priorityId
-            } ?: return "Некорректный id приоритета"
-            return priority.name
+            trackers: List<IdName>,
+        ): String? {
+            return null
         }
+    }
 
-        fun getValuesText(
-            priorities: List<IdName>,
-            newValue: String?,
-            oldValue: String?,
-        ): Pair<String?, String?> {
-            return newValue?.let {
-                getValueText(priorities, newValue)
-            } to oldValue?.let {
-                getValueText(priorities, it)
+    sealed class CustomField(val name: String, title: String) : DetailProperty("cf", title) {
+        object Deadline : CustomField("10", "Дедлайн") {
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return value?.parseDeadlineString()?.formatDate()
             }
         }
     }
 
-    object DescriptionAttr : Attribute("description", "Описание") {
-        fun getText(): String {
-            return "Описание задачи изменено"
+    sealed class Attribute(val name: String, title: String) : DetailProperty("attr", title) {
+        object DoneRatio : Attribute("done_ratio", "Готовность") {
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return value?.plus("%")
+            }
         }
-    }
 
-    object AssignedToAttr : Attribute("assigned_to_id", "Исполнитель") {
-        fun getText(): String {
-            return "Смена исполнителя задачи"
+        object Status : Attribute("status_id", "Статус") {
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return value?.let {
+                    val statusId = it.toIntOrNull()
+                    statuses.firstOrNull { status ->
+                        status.id == statusId
+                    }?.name
+                }
+            }
         }
-    }
-}
 
-sealed class CustomField(val name: String, val title: String) {
-    object Deadline : CustomField("10", "Дедлайн") {
-        fun getValuesText(
-            newValue: String?,
-            oldValue: String?,
-        ): Pair<String?, String?> {
-            val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
-            return newValue?.let {
-                format.parse(newValue)?.formatDate() ?: "Некорректная дата"
-            } to oldValue?.let {
-                if (it.isBlank()) return@let null
-                (format.parse(it)?.formatDate() ?: "Некорректная дата")
+        object Priority : Attribute("priority_id", "Приоритет") {
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return value?.let {
+                    val priorityId = it.toIntOrNull()
+                    priorities.firstOrNull { priority ->
+                        priority.id == priorityId
+                    }?.name
+                }
+            }
+        }
+
+        object Tracker : Attribute("tracker_id", "Трекер") {
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return value?.let {
+                    val trackerId = it.toIntOrNull()
+                    trackers.firstOrNull { tracker ->
+                        tracker.id == trackerId
+                    }?.name
+                }
+            }
+        }
+
+        object Description : Attribute("description", "Описание") {
+            override val customParse: (JournalDetails) -> String
+                get() = { DescriptionFormat }
+
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return null
+            }
+        }
+
+        object AssignedTo : Attribute("assigned_to_id", "Исполнитель") {
+            override val customParse: (JournalDetails) -> String
+                get() = { AssignedToFormat }
+
+            override fun parseValue(
+                value: String?,
+                statuses: List<IdName>,
+                priorities: List<IdName>,
+                trackers: List<IdName>,
+            ): String? {
+                return null
             }
         }
     }
-}
-
-sealed class DetailType(val propertyName: String) {
-    object Attachment : DetailType("attachment")
-    object Attribute : DetailType("attr")
-    object CustomField : DetailType("cf")
 }

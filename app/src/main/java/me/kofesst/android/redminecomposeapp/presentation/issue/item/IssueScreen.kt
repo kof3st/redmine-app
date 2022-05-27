@@ -30,7 +30,7 @@ import me.kofesst.android.redminecomposeapp.domain.model.Issue
 import me.kofesst.android.redminecomposeapp.domain.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.domain.util.formatHours
-import me.kofesst.android.redminecomposeapp.domain.util.getInfoText
+import me.kofesst.android.redminecomposeapp.domain.util.parse
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
@@ -55,6 +55,7 @@ fun IssueScreen(
     val issue by viewModel.issue.collectAsState()
     val statuses by viewModel.statuses.collectAsState()
     val priorities by viewModel.priorities.collectAsState()
+    val trackers by viewModel.trackers.collectAsState()
 
     AnimatedVisibility(
         visible = issue != null,
@@ -93,7 +94,8 @@ fun IssueScreen(
                                 JournalsSection(
                                     issue = issue,
                                     statuses = statuses,
-                                    priorities = priorities
+                                    priorities = priorities,
+                                    trackers = trackers
                                 )
                             }
                         }
@@ -126,6 +128,7 @@ fun JournalsSection(
     issue: Issue,
     statuses: List<IdName>,
     priorities: List<IdName>,
+    trackers: List<IdName>,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -137,7 +140,8 @@ fun JournalsSection(
                 JournalItem(
                     journal,
                     statuses,
-                    priorities
+                    priorities,
+                    trackers
                 )
             }
     }
@@ -148,6 +152,7 @@ fun JournalItem(
     journal: Journal,
     statuses: List<IdName>,
     priorities: List<IdName>,
+    trackers: List<IdName>,
 ) {
     RedmineCard(modifier = Modifier.fillMaxWidth()) {
         Column(
@@ -170,7 +175,11 @@ fun JournalItem(
                 Spacer(modifier = Modifier.height(10.dp))
                 journal.details.forEach { detail ->
                     Text(
-                        text = detail.getInfoText(statuses, priorities),
+                        text = detail.parse(
+                            statuses,
+                            priorities,
+                            trackers
+                        ),
                         style = MaterialTheme.typography.body1
                     )
                 }

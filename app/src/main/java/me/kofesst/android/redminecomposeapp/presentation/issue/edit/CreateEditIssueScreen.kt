@@ -23,7 +23,7 @@ import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
-import me.kofesst.android.redminecomposeapp.domain.util.formatDeadlineString
+import me.kofesst.android.redminecomposeapp.domain.util.parseDeadlineString
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
@@ -260,7 +260,7 @@ fun DeadlineField(
         RedmineTextField(
             value = formState.deadline?.formatDate() ?: "",
             onValueChange = { value ->
-                val date = value.formatDeadlineString()
+                val date = value.parseDeadlineString()
                 viewModel.onFormEvent(
                     IssueFormEvent.DeadlineChanged(
                         deadline = date

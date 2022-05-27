@@ -9,7 +9,7 @@ fun Date.format(format: String): String {
     return formatter.format(this)
 }
 
-fun String.formatDeadlineString(): Date {
+fun String.parseDeadlineString(): Date {
     val format = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT)
     return format.parse(this) ?: Date(0)
 }

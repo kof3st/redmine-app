@@ -22,9 +22,13 @@ class IssueViewModel @Inject constructor(
     private val _priorities = MutableStateFlow(IdName.priorities)
     val priorities get() = _priorities.asStateFlow()
 
+    private val _trackers = MutableStateFlow<List<IdName>>(listOf())
+    val trackers get() = _trackers.asStateFlow()
+
     fun refreshData(issueId: Int) {
         startLoading {
             _statuses.value = useCases.getStatuses()
+            _trackers.value = useCases.getTrackers()
             _issue.value = useCases.getIssueDetails(issueId)
         }
     }
