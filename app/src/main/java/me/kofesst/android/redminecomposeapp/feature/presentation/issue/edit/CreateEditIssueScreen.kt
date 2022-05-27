@@ -8,13 +8,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -253,6 +254,9 @@ fun DeadlineField(
 ) {
     val context = LocalContext.current
 
+    val localFocusManager = LocalFocusManager.current
+    val focusRequester = remember { FocusRequester() }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         DefaultTextField(
             value = formState.deadline?.formatDate() ?: "",
@@ -267,20 +271,24 @@ fun DeadlineField(
             isReadOnly = true,
             label = "Дедлайн",
             leadingIcon = painterResource(R.drawable.ic_date_24),
-            trailingIcon = painterResource(R.drawable.ic_more_horiz_24),
-            onTrailingIconClick = {
-                showDatePicker(
-                    context = context,
-                    selected = formState.deadline
-                ) { deadline ->
-                    viewModel.onFormEvent(
-                        IssueFormEvent.DeadlineChanged(
-                            deadline = deadline
-                        )
-                    )
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester)
+                .onFocusChanged {
+                    if (it.hasFocus) {
+                        showDatePicker(
+                            context = context,
+                            selected = formState.deadline
+                        ) { deadline ->
+                            viewModel.onFormEvent(
+                                IssueFormEvent.DeadlineChanged(
+                                    deadline = deadline
+                                )
+                            )
+                        }
+                    }
+                    localFocusManager.clearFocus(force = true)
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
         )
         formState.deadline?.run {
             TextButton(
