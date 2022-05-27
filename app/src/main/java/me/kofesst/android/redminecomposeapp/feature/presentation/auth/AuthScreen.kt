@@ -29,7 +29,11 @@ fun AuthScreen(
         viewModel.validationEvents.collect { event ->
             when (event) {
                 is ValidationEvent.Success -> {
-                    navController.navigate(Screen.Issues.route)
+                    navController.navigate(Screen.Issues.route) {
+                        popUpTo(Screen.Auth.route) {
+                            inclusive = true
+                        }
+                    }
                 }
             }
         }

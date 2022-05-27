@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -212,7 +213,11 @@ class MainActivity : ComponentActivity() {
                     BottomNavigationItem(
                         selected = selected,
                         onClick = {
-                            navController.navigate(screen.route)
+                            navController.navigate(screen.route) {
+                                if (screen.hasBottomBar) {
+                                    popUpToTop(navController)
+                                }
+                            }
                         },
                         icon = {
                             BottomNavigationItemContent(
@@ -250,5 +255,11 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+}
+
+fun NavOptionsBuilder.popUpToTop(navController: NavController) {
+    popUpTo(navController.currentBackStackEntry?.destination?.route ?: return) {
+        inclusive =  true
     }
 }
