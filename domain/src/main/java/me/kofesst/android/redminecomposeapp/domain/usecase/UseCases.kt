@@ -12,6 +12,7 @@ data class UseCases(
     val getTrackers: GetTrackers,
     val getStatuses: GetStatuses,
     val getMembers: GetMembers,
+    val uploadFile: UploadFile,
     val validateForEmptyField: ValidateForEmptyField,
     val validateForNotNullField: ValidateForNotNullField,
     val getAccount: GetAccount,

@@ -12,5 +12,7 @@ sealed class IssueFormEvent {
     data class DeadlineChanged(val deadline: Date?) : IssueFormEvent()
     data class DescriptionChanged(val description: String?) : IssueFormEvent()
     data class ChangesNotesChanged(val notes: String?) : IssueFormEvent()
+    data class AttachmentAdded(val attachment: FileData) : IssueFormEvent()
+    data class AttachmentRemoved(val attachment: FileData) : IssueFormEvent()
     object Submit : IssueFormEvent()
 }

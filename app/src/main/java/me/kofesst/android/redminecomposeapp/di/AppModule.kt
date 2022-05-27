@@ -73,6 +73,7 @@ object AppModule {
             getTrackers = GetTrackers(repository),
             getStatuses = GetStatuses(repository),
             getMembers = GetMembers(repository),
+            uploadFile = UploadFile(repository),
             validateForEmptyField = ValidateForEmptyField(),
             validateForNotNullField = ValidateForNotNullField(),
             getAccount = GetAccount(repository),

@@ -1,7 +1,7 @@
 package me.kofesst.android.redminecomposeapp.domain.repository
 
 import me.kofesst.android.redminecomposeapp.domain.model.*
-import me.kofesst.android.redminecomposeapp.domain.model.Issue
+import java.io.File
 
 interface RedmineRepository {
 
@@ -17,15 +17,20 @@ interface RedmineRepository {
 
     suspend fun getIssueDetails(issueId: Int): Issue
 
-    suspend fun createIssue(issue: Issue)
+    suspend fun createIssue(issue: Issue, attachments: List<UploadData>)
 
-    suspend fun updateIssue(issueId: Int, issue: Issue, notes: String?)
+    suspend fun updateIssue(
+        issueId: Int, issue: Issue,
+        attachments: List<UploadData>, notes: String?,
+    )
 
     suspend fun getTrackers(): List<IdName>
 
     suspend fun getStatuses(): List<IdName>
 
     suspend fun getMembers(projectId: Int): List<ProjectMember>
+
+    suspend fun uploadFile(file: File, type: String): String
 
     suspend fun addAccount(account: Account)
 

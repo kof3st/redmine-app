@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.presentation.issue.edit
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Context
 import androidx.compose.foundation.layout.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -28,6 +30,7 @@ import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
 import me.kofesst.android.redminecomposeapp.ui.component.DropdownItem
+import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineTextField
 import java.util.*
@@ -117,6 +120,11 @@ fun CreateEditIssueScreen(
                     viewModel = viewModel
                 )
             }
+            AttachmentsSection(
+                formState = formState,
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(10.dp))
             ExtendedFloatingActionButton(
                 onClick = {
@@ -136,6 +144,97 @@ fun CreateEditIssueScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+    }
+}
+
+@Composable
+fun AttachmentsSection(
+    formState: IssueFormState,
+    viewModel: CreateEditIssueViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+
+    val selectFileRequester = rememberFilePicker {
+        val contentUri = it.data ?: return@rememberFilePicker
+        if (contentUri.path == null) return@rememberFilePicker
+
+        val file = FileUtils.getFile(context, contentUri) ?: return@rememberFilePicker
+        val type = getFileMimeType(file.path)
+
+        viewModel.onFormEvent(
+            IssueFormEvent.AttachmentAdded(
+                attachment = FileData(
+                    file = file,
+                    type = type
+                )
+            )
+        )
+    }
+
+    val storageRequester = rememberPermissionLauncher {
+        selectFileRequester.launch(filePickerIntent)
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = modifier
+    ) {
+        formState.attachments.forEach { attachment ->
+            AttachmentItem(
+                attachment = attachment,
+                onDeleteClick = {
+                    viewModel.onFormEvent(
+                        IssueFormEvent.AttachmentRemoved(attachment)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+    TextButton(
+        onClick = {
+            if (hasStoragePermission) {
+                selectFileRequester.launch(filePickerIntent)
+            } else {
+                storageRequester.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Добавить вложение",
+            style = MaterialTheme.typography.body1
+        )
+    }
+}
+
+@Composable
+fun AttachmentItem(
+    attachment: FileData,
+    modifier: Modifier = Modifier,
+    onDeleteClick: () -> Unit = {},
+) {
+    RedmineCard(modifier = modifier) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(13.dp)
+        ) {
+            Text(
+                text = attachment.file.name,
+                style = MaterialTheme.typography.body1
+            )
+            TextButton(onClick = onDeleteClick) {
+                Text(
+                    text = "Открепить",
+                    style = MaterialTheme.typography.button,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
