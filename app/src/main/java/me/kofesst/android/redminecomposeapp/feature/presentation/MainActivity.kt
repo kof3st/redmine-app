@@ -1,3 +1,5 @@
+@file:Suppress("OPT_IN_IS_NOT_ENABLED")
+
 package me.kofesst.android.redminecomposeapp.feature.presentation
 
 import android.os.Bundle
@@ -11,7 +13,9 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -89,6 +93,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     fun TopBar(
         currentScreen: Screen,
@@ -96,11 +101,18 @@ class MainActivity : ComponentActivity() {
         isSignedIn: Boolean,
         onSessionClearClick: () -> Unit,
     ) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         TopAppBar(
             title = { Text(text = stringResource(currentScreen.nameRes)) },
             navigationIcon = if (currentScreen.hasBackButton) {
                 {
-                    IconButton(onClick = { navController.navigateUp() }) {
+                    IconButton(
+                        onClick = {
+                            keyboardController?.hide()
+                            navController.navigateUp()
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null
