@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RedmineComposeApp">
         <activity
-            android:name=".feature.presentation.MainActivity"
+            android:name=".presentation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.RedmineComposeApp">
             <intent-filter>

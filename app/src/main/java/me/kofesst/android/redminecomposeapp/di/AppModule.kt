@@ -11,11 +11,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import me.kofesst.android.redminecomposeapp.feature.data.repository.RedmineRepositoryImpl
-import me.kofesst.android.redminecomposeapp.feature.data.storage.AppDatabase
-import me.kofesst.android.redminecomposeapp.feature.domain.repository.RedmineRepository
-import me.kofesst.android.redminecomposeapp.feature.domain.usecase.*
-import me.kofesst.android.redminecomposeapp.feature.domain.util.UserHolder
+import me.kofesst.android.redminecomposeapp.data.repository.RedmineRepositoryImpl
+import me.kofesst.android.redminecomposeapp.data.storage.AppDatabase
+import me.kofesst.android.redminecomposeapp.domain.repository.RedmineRepository
+import me.kofesst.android.redminecomposeapp.domain.usecase.*
+import me.kofesst.android.redminecomposeapp.domain.util.UserHolder
 import javax.inject.Singleton
 
 @Module
@@ -26,12 +26,6 @@ object AppModule {
     @Singleton
     fun provideUserHolder(): UserHolder {
         return UserHolder()
-    }
-
-    @Provides
-    @Singleton
-    fun provideRepository(userHolder: UserHolder): RedmineRepository {
-        return RedmineRepositoryImpl(userHolder)
     }
 
     @Provides
@@ -54,10 +48,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUseCases(
-        repository: RedmineRepository,
+    fun provideRepository(
+        userHolder: UserHolder,
         database: AppDatabase,
         dataStore: DataStore<Preferences>,
+    ): RedmineRepository {
+        return RedmineRepositoryImpl(userHolder, database, dataStore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUseCases(
+        repository: RedmineRepository,
     ): UseCases {
         return UseCases(
             getCurrentUser = GetCurrentUser(repository),
@@ -73,14 +75,14 @@ object AppModule {
             getMembers = GetMembers(repository),
             validateForEmptyField = ValidateForEmptyField(),
             validateForNotNullField = ValidateForNotNullField(),
-            getAccount = GetAccount(database),
-            getAccounts = GetAccounts(database),
-            addAccount = AddAccount(database),
-            updateAccount = UpdateAccount(database),
-            deleteAccount = DeleteAccount(database),
-            saveSession = SaveSession(dataStore),
-            restoreSession = RestoreSession(dataStore),
-            clearSession = ClearSession(dataStore)
+            getAccount = GetAccount(repository),
+            getAccounts = GetAccounts(repository),
+            addAccount = AddAccount(repository),
+            updateAccount = UpdateAccount(repository),
+            deleteAccount = DeleteAccount(repository),
+            saveSession = SaveSession(repository),
+            restoreSession = RestoreSession(repository),
+            clearSession = ClearSession(repository)
         )
     }
 }
