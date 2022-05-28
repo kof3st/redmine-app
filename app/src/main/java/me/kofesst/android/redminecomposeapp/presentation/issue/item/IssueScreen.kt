@@ -31,6 +31,7 @@ import me.kofesst.android.redminecomposeapp.domain.model.journal.Journal
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.domain.util.formatHours
 import me.kofesst.android.redminecomposeapp.domain.util.parse
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
@@ -41,8 +42,10 @@ import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
 fun IssueScreen(
     issueId: Int,
     viewModel: IssueViewModel = hiltViewModel(),
-    navController: NavController,
 ) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+    
     LaunchedEffect(key1 = true) {
         viewModel.refreshData(issueId)
     }

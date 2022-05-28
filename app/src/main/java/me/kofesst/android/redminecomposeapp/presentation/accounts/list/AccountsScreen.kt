@@ -17,20 +17,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.Account
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
 
 @Composable
-fun AccountsScreen(
-    navController: NavController,
-    viewModel: AccountsViewModel,
-) {
+fun AccountsScreen(viewModel: AccountsViewModel) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.refreshData()
     }

@@ -12,9 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.issue.SortFilterEvent
 import me.kofesst.android.redminecomposeapp.presentation.issue.list.IssuesColumn
@@ -28,8 +28,10 @@ import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
 fun ProjectScreen(
     projectId: Int,
     viewModel: ProjectViewModel = hiltViewModel(),
-    navController: NavController,
 ) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+    
     LaunchedEffect(key1 = true) {
         viewModel.refreshData(projectId)
     }

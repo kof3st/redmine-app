@@ -21,11 +21,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.domain.util.parseDeadlineString
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
@@ -39,9 +39,11 @@ import java.util.*
 fun CreateEditIssueScreen(
     issueId: Int,
     projectId: Int,
-    navController: NavController,
     viewModel: CreateEditIssueViewModel = hiltViewModel(),
 ) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.loadDetails(issueId, projectId)
         viewModel.validationEvents.collect { event ->

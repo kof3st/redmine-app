@@ -11,9 +11,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.Account
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
@@ -24,10 +24,10 @@ import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineTextField
 
 @Composable
-fun AuthScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
-    navController: NavController,
-) {
+fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.checkForSession()
         viewModel.validationEvents.collect { event ->
