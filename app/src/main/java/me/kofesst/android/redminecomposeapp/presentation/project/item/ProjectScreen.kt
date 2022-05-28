@@ -37,7 +37,7 @@ fun ProjectScreen(
     }
 
     val loadingState by viewModel.loadingState
-    LoadingHandler(viewModel)
+    LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 

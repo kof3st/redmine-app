@@ -35,6 +35,7 @@ import me.kofesst.android.redminecomposeapp.presentation.issue.list.IssuesScreen
 import me.kofesst.android.redminecomposeapp.presentation.project.item.ProjectScreen
 import me.kofesst.android.redminecomposeapp.presentation.project.list.ProjectsScreen
 import me.kofesst.android.redminecomposeapp.presentation.util.activity
+import me.kofesst.android.redminecomposeapp.ui.component.RedmineSnackbar
 
 val LocalAppState = compositionLocalOf<RedmineAppState> {
     error("App state did not initialized")
@@ -75,6 +76,20 @@ fun RedmineApp() {
             BottomNavigationBar(
                 currentScreen = currentScreen,
                 navController = navController
+            )
+        },
+        snackbarHost = {
+            val shouldUseBarPadding = currentScreen.hasBottomBar
+            val snackbarModifier = if (shouldUseBarPadding) {
+                Modifier.systemBarsPadding()
+            } else {
+                Modifier
+            }
+
+            SnackbarHost(
+                hostState = it,
+                modifier = snackbarModifier,
+                snackbar = { data -> RedmineSnackbar(data) }
             )
         }
     ) {

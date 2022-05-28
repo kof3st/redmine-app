@@ -1,26 +1,20 @@
 package me.kofesst.android.redminecomposeapp.presentation.util
 
 import android.widget.Toast
+import androidx.compose.material.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
-import me.kofesst.android.redminecomposeapp.presentation.ViewModelBase
 
 @Composable
 fun LoadingHandler(
-    viewModel: ViewModelBase
+    loadingState: LoadingResult,
+    snackbarHostState: SnackbarHostState,
 ) {
-    val context = LocalContext.current
-    val loadingState by viewModel.loadingState
-
     LaunchedEffect(loadingState) {
         if (loadingState.state == LoadingResult.State.FAILED) {
-            Toast.makeText(
-                context,
-                loadingState.errorMessage ?: "Unexpected error",
-                Toast.LENGTH_SHORT
-            ).show()
+            snackbarHostState.showSnackbar(
+                message = loadingState.errorMessage ?: "Неизвестная ошибка"
+            )
         }
     }
 }
