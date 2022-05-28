@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import me.kofesst.android.redminecomposeapp.data.model.CustomFieldDto
 import me.kofesst.android.redminecomposeapp.data.model.attachment.UploadDataDto
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.model.Issue
@@ -179,7 +180,9 @@ class CreateEditIssueViewModel @Inject constructor(
                     priority = formState.priority!!,
                     tracker = formState.tracker!!,
                     status = formState.status ?: IdName(1, ""),
-                    deadline = formState.deadline
+                    customFields = listOf(
+                        CustomFieldDto.getDeadline(formState.deadline).toCustomField()
+                    )
                 )
 
                 editing.value?.run {
