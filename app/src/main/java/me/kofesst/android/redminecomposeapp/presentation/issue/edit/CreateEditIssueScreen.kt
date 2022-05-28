@@ -371,6 +371,29 @@ fun DeadlineField(
             isReadOnly = true,
             label = "Дедлайн",
             leadingIcon = painterResource(R.drawable.ic_date_24),
+            trailingIcon = if (formState.deadline != null) {
+                painterResource(R.drawable.ic_clear_24)
+            } else {
+                painterResource(R.drawable.ic_date_24)
+            },
+            onTrailingIconClick = {
+                if (formState.deadline != null) {
+                    viewModel.onFormEvent(
+                        IssueFormEvent.DeadlineChanged(null)
+                    )
+                } else {
+                    showDatePicker(
+                        context = context,
+                        selected = formState.deadline
+                    ) { deadline ->
+                        viewModel.onFormEvent(
+                            IssueFormEvent.DeadlineChanged(
+                                deadline = deadline
+                            )
+                        )
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
@@ -390,23 +413,6 @@ fun DeadlineField(
                     localFocusManager.clearFocus(force = true)
                 }
         )
-        formState.deadline?.run {
-            TextButton(
-                onClick = {
-                    viewModel.onFormEvent(
-                        IssueFormEvent.DeadlineChanged(
-                            deadline = null
-                        )
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Удалить",
-                    style = MaterialTheme.typography.body2
-                )
-            }
-        }
     }
 }
 
