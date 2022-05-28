@@ -10,6 +10,7 @@ import me.kofesst.android.redminecomposeapp.data.model.status.StatusesResponse
 import me.kofesst.android.redminecomposeapp.data.model.tracker.TrackersResponse
 import me.kofesst.android.redminecomposeapp.data.model.user.UserResponse
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -84,12 +85,11 @@ interface RedmineApi {
         @Path("projectId") projectId: Int,
     ): Response<MembersResponse>
 
-    @Multipart
     @POST("/uploads.json")
     @Headers("Content-Type: application/octet-stream")
     suspend fun uploadFile(
         @Header(API_KEY_HEADER) apiKey: String,
         @Query("filename") filename: String,
-        @Part file: MultipartBody.Part
+        @Body file: RequestBody
     ): Response<UploadResponse>
 }

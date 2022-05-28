@@ -20,7 +20,6 @@ import me.kofesst.android.redminecomposeapp.domain.model.*
 import me.kofesst.android.redminecomposeapp.domain.repository.RedmineRepository
 import me.kofesst.android.redminecomposeapp.domain.util.UserHolder
 import okhttp3.MediaType
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Converter
 import retrofit2.Response
@@ -152,13 +151,7 @@ class RedmineRepositoryImpl(
                 file
             )
 
-            val body = MultipartBody.Part.createFormData(
-                "",
-                file.name,
-                requestFile
-            )
-
-            api.uploadFile(userHolder.apiKey, file.name, body)
+            api.uploadFile(userHolder.apiKey, file.name, requestFile)
         }.upload.token
     }
 
