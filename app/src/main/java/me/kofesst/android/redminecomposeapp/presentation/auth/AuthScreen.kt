@@ -10,9 +10,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.Account
 import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
@@ -29,14 +31,6 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
         viewModel.checkForSession()
     }
 
-    FormResultHandler(viewModel.validationEvents) {
-        navController.navigate(Screen.Issues.route) {
-            popUpTo(Screen.Auth.route) {
-                inclusive = true
-            }
-        }
-    }
-
     val loadingState by viewModel.loadingState
     LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
@@ -44,12 +38,93 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     }
 
+    AuthForm(
+        viewModel = viewModel,
+        modifier = Modifier.fillMaxSize()
+    )
+
+    val sessionState by viewModel.sessionCheckState
+    SessionSplashScreen(visible = !sessionState)
+
+    var newAccountDialogState by remember {
+        mutableStateOf(false)
+    }
+    SaveNewAccountDialog(
+        isOpened = newAccountDialogState,
+        onAction = {
+            newAccountDialogState = false
+
+            if (it) {
+                viewModel.saveNewAccount {
+                    onSignedIn(navController)
+                }
+            } else {
+                onSignedIn(navController)
+            }
+        }
+    )
+
+    FormResultHandler(viewModel.validationEvents) {
+        if (viewModel.checkForNewAccount()) {
+            newAccountDialogState = true
+        } else {
+            onSignedIn(navController)
+        }
+    }
+}
+
+private fun onSignedIn(navController: NavController) {
+    navController.navigate(Screen.Issues.route) {
+        popUpTo(Screen.Auth.route) {
+            inclusive = true
+        }
+    }
+}
+
+@Composable
+fun SaveNewAccountDialog(
+    isOpened: Boolean,
+    onAction: (Boolean) -> Unit,
+) {
+    if (isOpened) {
+        RedmineAlertDialog(
+            title = stringResource(R.string.save_new_account),
+            text = stringResource(R.string.save_new_account__text),
+            onDismissRequest = { onAction(false) },
+            onConfirmRequest = { onAction(true) },
+            confirmButtonText = stringResource(R.string.create),
+            dismissButtonText = stringResource(R.string.cancel)
+        )
+    }
+}
+
+@Composable
+fun SessionSplashScreen(visible: Boolean) {
+    AnimatedVisibility(visible = visible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.surface)
+                .zIndex(100.0f)
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+}
+
+@Composable
+fun AuthForm(
+    viewModel: AuthViewModel,
+    modifier: Modifier = Modifier,
+) {
     val accounts by viewModel.accounts.collectAsState()
     val formState = viewModel.formState
 
     Column(
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     ) {
         RedmineCard(
             cornerRadius = 20.dp,
@@ -102,25 +177,6 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                     viewModel.onFormEvent(AuthFormEvent.Submit)
                 }
             }
-        }
-    }
-
-    val sessionState by viewModel.sessionCheckState
-    SessionSplashScreen(visible = !sessionState)
-}
-
-@Composable
-fun SessionSplashScreen(visible: Boolean) {
-    AnimatedVisibility(visible = visible) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colors.surface)
-                .zIndex(100.0f)
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
         }
     }
 }

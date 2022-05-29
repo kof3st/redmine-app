@@ -16,4 +16,8 @@
     <string name="create_edit_issue">Сохранение задачи</string>
     <string name="accounts">Аккаунты</string>
     <string name="create_edit_account">Сохранение аккаунта</string>
+    <string name="save_new_account">Новый аккаунт</string>
+    <string name="save_new_account__text">Обнаружены новые данные. Создать новый аккаунт с этими данными для входа?</string>
+    <string name="create">Создать</string>
+    <string name="cancel">Отмена</string>
 </resources>

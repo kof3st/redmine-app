@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.presentation.auth
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,8 +15,10 @@ import kotlinx.coroutines.launch
 import me.kofesst.android.redminecomposeapp.domain.model.Account
 import me.kofesst.android.redminecomposeapp.domain.usecase.UseCases
 import me.kofesst.android.redminecomposeapp.domain.util.UserHolder
+import me.kofesst.android.redminecomposeapp.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.presentation.ViewModelBase
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -36,6 +39,8 @@ class AuthViewModel @Inject constructor(
 
     suspend fun checkForSession() {
         startLoading {
+            loadAccounts()
+
             val session = useCases.restoreSession()
             if (session != null) {
                 formState = AuthFormState(
@@ -45,7 +50,6 @@ class AuthViewModel @Inject constructor(
                 onDataSubmit()
             } else {
                 _sessionCheckState.value = true
-                loadAccounts()
             }
         }
     }
@@ -99,6 +103,25 @@ class AuthViewModel @Inject constructor(
                     apiKey = formState.apiKey
                 )
             }
+        }
+    }
+
+    fun checkForNewAccount(): Boolean = !accounts.value.any {
+        Log.d("AAA", "IT: ${it.host} ${it.apiKey}")
+        Log.d("AAA", "FS: ${formState.host} ${formState.apiKey}")
+        Log.d("AAA", "STATE: ${it.host == formState.host && it.apiKey == formState.apiKey}")
+        it.host == formState.host && it.apiKey == formState.apiKey
+    }
+
+    fun saveNewAccount(onSaved: () -> Unit) {
+        startLoading(onSuccessCallback = onSaved) {
+            useCases.addAccount(
+                Account(
+                    name = Date().formatDate(showTime = true),
+                    host = formState.host,
+                    apiKey = formState.apiKey
+                )
+            )
         }
     }
 }
