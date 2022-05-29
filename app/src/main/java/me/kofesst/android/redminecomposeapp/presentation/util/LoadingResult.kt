@@ -7,4 +7,7 @@ data class LoadingResult(
     enum class State {
         IDLE, RUNNING, SUCCESS, FAILED
     }
+
+    val isLoading: Boolean
+        get() = state == State.RUNNING
 }
