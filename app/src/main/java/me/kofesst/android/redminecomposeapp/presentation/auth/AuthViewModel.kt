@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.presentation.auth
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -30,6 +31,9 @@ class AuthViewModel @Inject constructor(
     private val validationChannel = Channel<ValidationEvent>()
     val validationEvents = validationChannel.receiveAsFlow()
 
+    private val _sessionCheckState = mutableStateOf(false)
+    val sessionCheckState: State<Boolean> get() = _sessionCheckState
+
     suspend fun checkForSession() {
         startLoading {
             val session = useCases.restoreSession()
@@ -40,6 +44,7 @@ class AuthViewModel @Inject constructor(
                 )
                 onDataSubmit()
             } else {
+                _sessionCheckState.value = true
                 loadAccounts()
             }
         }

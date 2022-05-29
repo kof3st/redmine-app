@@ -1,6 +1,7 @@
 package me.kofesst.android.redminecomposeapp.presentation.auth
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -10,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.Account
@@ -100,6 +102,25 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
                     viewModel.onFormEvent(AuthFormEvent.Submit)
                 }
             }
+        }
+    }
+
+    val sessionState by viewModel.sessionCheckState
+    SessionSplashScreen(visible = !sessionState)
+}
+
+@Composable
+fun SessionSplashScreen(visible: Boolean) {
+    AnimatedVisibility(visible = visible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.surface)
+                .zIndex(100.0f)
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
