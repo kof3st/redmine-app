@@ -20,6 +20,7 @@ import me.kofesst.android.redminecomposeapp.domain.model.Account
 import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
+import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.ui.component.*
 
 @Composable
@@ -34,17 +35,26 @@ fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
     val loadingState by viewModel.loadingState
     LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
-    if (loadingState.isLoading) {
-        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-    }
-
     AuthForm(
         viewModel = viewModel,
         modifier = Modifier.fillMaxSize()
     )
 
+    if (loadingState.isLoading) {
+        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+    }
+
     val sessionState by viewModel.sessionCheckState
-    SessionSplashScreen(visible = !sessionState)
+    var hasSessionError by remember {
+        mutableStateOf(false)
+    }
+
+    if (loadingState.state == LoadingResult.State.FAILED) {
+        hasSessionError = true
+    }
+
+    val splashScreenVisible = !sessionState && !hasSessionError
+    SessionSplashScreen(visible = splashScreenVisible)
 
     var newAccountDialogState by remember {
         mutableStateOf(false)
