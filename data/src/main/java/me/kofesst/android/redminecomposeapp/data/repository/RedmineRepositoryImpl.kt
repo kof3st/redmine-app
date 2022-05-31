@@ -19,10 +19,13 @@ import me.kofesst.android.redminecomposeapp.data.storage.AppDatabase
 import me.kofesst.android.redminecomposeapp.domain.model.*
 import me.kofesst.android.redminecomposeapp.domain.repository.RedmineRepository
 import me.kofesst.android.redminecomposeapp.domain.util.UserHolder
+import okhttp3.MediaType
+import okhttp3.RequestBody
 import retrofit2.Converter
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import java.net.UnknownHostException
 import java.util.*
 
@@ -89,12 +92,15 @@ class RedmineRepositoryImpl(
     }
 
     @Throws(Exception::class)
-    override suspend fun createIssue(issue: Issue) {
+    override suspend fun createIssue(
+        issue: Issue,
+        attachments: List<UploadData>,
+    ) {
         handleRequest(
             host = userHolder.host,
             useXml = true
         ) { api ->
-            api.createIssue(userHolder.apiKey, CreateIssueBody.fromIssue(issue))
+            api.createIssue(userHolder.apiKey, CreateIssueBody.fromIssue(issue, attachments))
         }
     }
 
@@ -102,6 +108,7 @@ class RedmineRepositoryImpl(
     override suspend fun updateIssue(
         issueId: Int,
         issue: Issue,
+        attachments: List<UploadData>,
         notes: String?,
     ) {
         handleRequest(
@@ -110,6 +117,7 @@ class RedmineRepositoryImpl(
         ) { api ->
             api.updateIssue(userHolder.apiKey, issueId, CreateIssueBody.fromIssue(
                 issue = issue,
+                attachments = attachments,
                 notes = notes
             ))
         }
@@ -134,6 +142,17 @@ class RedmineRepositoryImpl(
         return handleResponse(userHolder.host) { api ->
             api.getMembers(userHolder.apiKey, projectId)
         }.memberships.map { it.toMember() }
+    }
+
+    override suspend fun uploadFile(file: File, type: String): String {
+        return handleResponse(userHolder.host) { api ->
+            val requestFile = RequestBody.create(
+                MediaType.parse(type),
+                file
+            )
+
+            api.uploadFile(userHolder.apiKey, file.name, requestFile)
+        }.upload.token
     }
 
     override suspend fun addAccount(account: Account) {

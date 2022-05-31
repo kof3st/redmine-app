@@ -13,13 +13,18 @@ fun RedmineCard(
     modifier: Modifier = Modifier,
     elevation: Dp = 5.dp,
     cornerRadius: Dp = 5.dp,
-    onClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
+    var cardModifier = modifier
+    if (onClick != null) {
+        cardModifier = cardModifier.clickable { onClick() }
+    }
+
     Card(
         elevation = elevation,
         shape = RoundedCornerShape(cornerRadius),
-        modifier = modifier.clickable { onClick() },
+        modifier = cardModifier,
         content = content
     )
 }

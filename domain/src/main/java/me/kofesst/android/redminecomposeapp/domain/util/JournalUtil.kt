@@ -130,6 +130,7 @@ sealed class DetailProperty(val propertyName: String, private val title: String)
                 priorities: List<IdName>,
                 trackers: List<IdName>,
             ): String? {
+                if (value?.isBlank() == true) return null
                 return value?.parseDeadlineString()?.formatDate()
             }
         }

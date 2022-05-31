@@ -15,17 +15,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineTextField
 
 @Composable
 fun CreateEditAccountScreen(
     accountId: Int,
-    navController: NavController,
     viewModel: CreateEditAccountViewModel = hiltViewModel(),
 ) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.loadDetails(accountId)
         viewModel.validationEvents.collect { event ->

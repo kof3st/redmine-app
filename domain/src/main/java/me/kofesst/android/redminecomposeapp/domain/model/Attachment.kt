@@ -10,4 +10,7 @@ data class Attachment(
     val description: String,
     val fileName: String,
     val fileSize: Int,
-)
+) {
+    val extension: String
+        get() = fileName.substring(fileName.lastIndexOf('.'))
+}

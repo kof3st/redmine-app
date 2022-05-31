@@ -2,7 +2,9 @@ package me.kofesst.android.redminecomposeapp.data.model.issue
 
 import com.tickaroo.tikxml.annotation.*
 import me.kofesst.android.redminecomposeapp.data.model.CustomFieldDto
+import me.kofesst.android.redminecomposeapp.data.model.attachment.UploadDataDto
 import me.kofesst.android.redminecomposeapp.domain.model.Issue
+import me.kofesst.android.redminecomposeapp.domain.model.UploadData
 
 @Xml(name = "issue")
 class CreateIssueBody(
@@ -27,6 +29,14 @@ class CreateIssueBody(
     @PropertyElement
     val status_id: Int = 1,
 
+    @Path("uploads")
+    @Element
+    val uploads: List<UploadDataDto>,
+
+    @Path("uploads")
+    @Attribute(name = "type")
+    val uploads_type: String = "array",
+
     @Path("custom_fields")
     @Element
     val custom_fields: MutableList<CustomFieldDto> = mutableListOf(),
@@ -39,7 +49,11 @@ class CreateIssueBody(
     val notes: String? = null,
 ) {
     companion object {
-        fun fromIssue(issue: Issue, notes: String? = null) = CreateIssueBody(
+        fun fromIssue(
+            issue: Issue,
+            attachments: List<UploadData>,
+            notes: String? = null,
+        ) = CreateIssueBody(
             project_id = issue.projectId,
             subject = issue.subject,
             description = issue.description ?: "",
@@ -47,6 +61,13 @@ class CreateIssueBody(
             priority_id = issue.priority.id,
             tracker_id = issue.tracker.id,
             status_id = issue.status.id,
+            uploads = attachments.map {
+                UploadDataDto(
+                    token = it.token,
+                    fileName = it.fileName,
+                    type = it.type
+                )
+            },
             custom_fields = issue.customFields.map {
                 CustomFieldDto.fromCustomField(it)
             }.toMutableList(),

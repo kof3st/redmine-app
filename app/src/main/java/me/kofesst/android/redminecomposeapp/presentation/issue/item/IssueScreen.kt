@@ -3,9 +3,12 @@ package me.kofesst.android.redminecomposeapp.presentation.issue.item
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -14,23 +17,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
+import me.kofesst.android.redminecomposeapp.domain.model.Attachment
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.model.Issue
 import me.kofesst.android.redminecomposeapp.domain.model.journal.Journal
-import me.kofesst.android.redminecomposeapp.domain.util.formatDate
-import me.kofesst.android.redminecomposeapp.domain.util.formatHours
-import me.kofesst.android.redminecomposeapp.domain.util.parse
+import me.kofesst.android.redminecomposeapp.domain.util.*
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
@@ -41,14 +44,16 @@ import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
 fun IssueScreen(
     issueId: Int,
     viewModel: IssueViewModel = hiltViewModel(),
-    navController: NavController,
 ) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.refreshData(issueId)
     }
 
     val loadingState by viewModel.loadingState
-    LoadingHandler(viewModel)
+    LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
@@ -80,7 +85,10 @@ fun IssueScreen(
                             DetailsSection(issue)
                             if (issue.attachments.isNotEmpty()) {
                                 Divider(modifier = Modifier.padding(vertical = 10.dp))
-                                AttachmentsSection(issue)
+                                AttachmentsSection(
+                                    issue = issue,
+                                    apiKey = viewModel.userHolder.apiKey
+                                )
                             }
                             if (issue.children.isNotEmpty()) {
                                 Divider(modifier = Modifier.padding(vertical = 10.dp))
@@ -226,38 +234,104 @@ fun ChildrenSection(
 }
 
 @Composable
-fun AttachmentsSection(issue: Issue) {
+fun AttachmentsSection(
+    issue: Issue,
+    apiKey: String,
+) {
     val uriHandler = LocalUriHandler.current
 
-    Column(
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-        modifier = Modifier.fillMaxWidth()
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(20.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
     ) {
-        issue.attachments.forEach { attachment ->
-            val attachmentLink = buildAnnotatedString {
-                pushStringAnnotation(tag = "file-url", annotation = attachment.url)
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.primary)) {
-                    append(attachment.fileName)
-                }
-                pop()
-                withStyle(style = SpanStyle(color = MaterialTheme.colors.onBackground)) {
-                    append(" (${attachment.createdOn.formatDate(showTime = true)})")
-                }
-            }
-
-            ClickableText(
-                text = attachmentLink,
-                style = MaterialTheme.typography.body1
-            ) { offset ->
-                attachmentLink.getStringAnnotations(
-                    tag = "file-url",
-                    start = offset,
-                    end = offset
-                ).firstOrNull()?.run {
-                    uriHandler.openUri(this.item)
-                }
+        itemsIndexed(issue.attachments) { _, attachment ->
+            AttachmentItem(
+                attachment = attachment,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(300.dp)
+            ) {
+                uriHandler.openUri(attachment.getDownloadLink(apiKey))
             }
         }
+    }
+}
+
+@Composable
+fun AttachmentItem(
+    attachment: Attachment,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+    RedmineCard(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(10.dp)
+        ) {
+            AttachmentTypeBox(
+                extension = attachment.extension,
+            )
+            Column(
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.weight(1.0f)
+            ) {
+                Text(
+                    text = attachment.fileName,
+                    style = MaterialTheme.typography.body1,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (attachment.description.isNotBlank()) {
+                    Text(
+                        text = attachment.description,
+                        style = MaterialTheme.typography.subtitle1,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = attachment.createdOn.formatDate(showTime = true),
+                    style = MaterialTheme.typography.subtitle2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = attachment.fileSizeWithUnit,
+                    style = MaterialTheme.typography.subtitle2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun AttachmentTypeBox(
+    extension: String,
+    size: Dp = 70.dp,
+) {
+    Box(
+        modifier = Modifier
+            .size(size)
+            .clip(RoundedCornerShape(percent = 50))
+            .background(MaterialTheme.colors.primary)
+    ) {
+        Text(
+            text = extension,
+            style = MaterialTheme.typography.h6,
+            modifier = Modifier.align(Alignment.Center),
+            fontWeight = FontWeight.Black
+        )
     }
 }
 

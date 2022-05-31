@@ -1,6 +1,7 @@
 package me.kofesst.android.redminecomposeapp.presentation.auth
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -9,58 +10,121 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.Account
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
-import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
-import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
-import me.kofesst.android.redminecomposeapp.ui.component.DropdownItem
-import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
-import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
-import me.kofesst.android.redminecomposeapp.ui.component.RedmineTextField
+import me.kofesst.android.redminecomposeapp.ui.component.*
 
 @Composable
-fun AuthScreen(
-    viewModel: AuthViewModel = hiltViewModel(),
-    navController: NavController,
-) {
-    LaunchedEffect(key1 = true) {
+fun AuthScreen(viewModel: AuthViewModel = hiltViewModel()) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
+    LaunchedEffect(Unit) {
         viewModel.checkForSession()
-        viewModel.validationEvents.collect { event ->
-            when (event) {
-                is ValidationEvent.Success -> {
-                    navController.navigate(Screen.Issues.route) {
-                        popUpTo(Screen.Auth.route) {
-                            inclusive = true
-                        }
-                    }
-                }
-            }
-        }
     }
 
     val loadingState by viewModel.loadingState
-    LoadingHandler(viewModel)
+    LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
-    val isLoading = loadingState.state == LoadingResult.State.RUNNING
-    if (isLoading) {
+    if (loadingState.isLoading) {
         LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
     }
 
-    val accounts by viewModel.accounts.collectAsState()
-    var selectedAccount by remember {
-        mutableStateOf<Account?>(null)
-    }
+    AuthForm(
+        viewModel = viewModel,
+        modifier = Modifier.fillMaxSize()
+    )
 
+    val sessionState by viewModel.sessionCheckState
+    SessionSplashScreen(visible = !sessionState)
+
+    var newAccountDialogState by remember {
+        mutableStateOf(false)
+    }
+    SaveNewAccountDialog(
+        isOpened = newAccountDialogState,
+        onAction = {
+            newAccountDialogState = false
+
+            if (it) {
+                viewModel.saveNewAccount {
+                    onSignedIn(navController)
+                }
+            } else {
+                onSignedIn(navController)
+            }
+        }
+    )
+
+    FormResultHandler(viewModel.validationEvents) {
+        if (viewModel.checkForNewAccount()) {
+            newAccountDialogState = true
+        } else {
+            onSignedIn(navController)
+        }
+    }
+}
+
+private fun onSignedIn(navController: NavController) {
+    navController.navigate(Screen.Issues.route) {
+        popUpTo(Screen.Auth.route) {
+            inclusive = true
+        }
+    }
+}
+
+@Composable
+fun SaveNewAccountDialog(
+    isOpened: Boolean,
+    onAction: (Boolean) -> Unit,
+) {
+    if (isOpened) {
+        RedmineAlertDialog(
+            title = stringResource(R.string.save_new_account),
+            text = stringResource(R.string.save_new_account__text),
+            onDismissRequest = { onAction(false) },
+            onConfirmRequest = { onAction(true) },
+            confirmButtonText = stringResource(R.string.create),
+            dismissButtonText = stringResource(R.string.cancel)
+        )
+    }
+}
+
+@Composable
+fun SessionSplashScreen(visible: Boolean) {
+    AnimatedVisibility(visible = visible) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colors.surface)
+                .zIndex(100.0f)
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+}
+
+@Composable
+fun AuthForm(
+    viewModel: AuthViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val accounts by viewModel.accounts.collectAsState()
     val formState = viewModel.formState
 
     Column(
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier
     ) {
         RedmineCard(
             cornerRadius = 20.dp,
@@ -80,29 +144,16 @@ fun AuthScreen(
                     style = MaterialTheme.typography.h5
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                AnimatedVisibility(visible = accounts.isNotEmpty()) {
-                    RedmineDropdown(
-                        items = accounts.map { account ->
-                            DropdownItem(
-                                text = account.name,
-                                onSelected = {
-                                    selectedAccount = account
-                                    viewModel.onFormEvent(
-                                        AuthFormEvent.HostChanged(
-                                            account.host
-                                        )
-                                    )
-                                    viewModel.onFormEvent(
-                                        AuthFormEvent.ApiKeyChanged(
-                                            account.apiKey
-                                        )
-                                    )
-                                }
-                            )
-                        },
-                        value = selectedAccount?.name ?: "",
-                        placeholder = "Аккаунт",
-                        modifier = Modifier.fillMaxWidth()
+                AccountsDropdown(accounts) {
+                    viewModel.onFormEvent(
+                        AuthFormEvent.HostChanged(
+                            it.host
+                        )
+                    )
+                    viewModel.onFormEvent(
+                        AuthFormEvent.ApiKeyChanged(
+                            it.apiKey
+                        )
                     )
                 }
                 RedmineTextField(
@@ -122,25 +173,60 @@ fun AuthScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(modifier = Modifier.height(10.dp))
-                ExtendedFloatingActionButton(
-                    onClick = {
-                        viewModel.onFormEvent(AuthFormEvent.Submit)
-                    },
-                    text = {
-                        Text(
-                            text = "Отправить запрос",
-                            style = MaterialTheme.typography.body1
-                        )
-                    },
-                    icon = {
-                        Icon(
-                            imageVector = Icons.Default.Send,
-                            contentDescription = null
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                SubmitButton(modifier = Modifier.fillMaxWidth()) {
+                    viewModel.onFormEvent(AuthFormEvent.Submit)
+                }
             }
         }
     }
+}
+
+@Composable
+fun AccountsDropdown(
+    accounts: List<Account>,
+    onAccountSelected: (Account) -> Unit,
+) {
+    var selected by remember {
+        mutableStateOf<Account?>(null)
+    }
+
+    AnimatedVisibility(visible = accounts.isNotEmpty()) {
+        RedmineDropdown(
+            items = accounts.map { account ->
+                DropdownItem(
+                    text = account.name,
+                    onSelected = {
+                        selected = account
+                        onAccountSelected(account)
+                    }
+                )
+            },
+            value = selected?.name ?: "",
+            placeholder = "Аккаунт",
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+fun SubmitButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+    ExtendedFloatingActionButton(
+        onClick = onClick,
+        text = {
+            Text(
+                text = "Отправить запрос",
+                style = MaterialTheme.typography.body1
+            )
+        },
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Send,
+                contentDescription = null
+            )
+        },
+        modifier = modifier
+    )
 }

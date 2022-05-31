@@ -16,4 +16,5 @@ data class IssueFormState(
     val deadline: Date? = null,
     val description: String? = null,
     val changesNotes: String? = null,
+    val attachments: MutableList<FileData> = mutableListOf(),
 )

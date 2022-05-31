@@ -13,10 +13,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.domain.model.Project
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
@@ -24,16 +24,16 @@ import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
 
 @Composable
-fun ProjectsScreen(
-    viewModel: ProjectsViewModel,
-    navController: NavController,
-) {
+fun ProjectsScreen(viewModel: ProjectsViewModel) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.refreshData()
     }
 
     val loadingState by viewModel.loadingState
-    LoadingHandler(viewModel)
+    LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 

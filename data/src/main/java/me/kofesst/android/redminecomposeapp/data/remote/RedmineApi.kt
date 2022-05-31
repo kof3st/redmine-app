@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.data.remote
 
+import me.kofesst.android.redminecomposeapp.data.model.attachment.UploadResponse
 import me.kofesst.android.redminecomposeapp.data.model.issue.CreateIssueBody
 import me.kofesst.android.redminecomposeapp.data.model.issue.IssueDetailsResponse
 import me.kofesst.android.redminecomposeapp.data.model.issue.IssuesResponse
@@ -8,6 +9,8 @@ import me.kofesst.android.redminecomposeapp.data.model.project.ProjectsResponse
 import me.kofesst.android.redminecomposeapp.data.model.status.StatusesResponse
 import me.kofesst.android.redminecomposeapp.data.model.tracker.TrackersResponse
 import me.kofesst.android.redminecomposeapp.data.model.user.UserResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -81,4 +84,12 @@ interface RedmineApi {
         @Header(API_KEY_HEADER) apiKey: String,
         @Path("projectId") projectId: Int,
     ): Response<MembersResponse>
+
+    @POST("/uploads.json")
+    @Headers("Content-Type: application/octet-stream")
+    suspend fun uploadFile(
+        @Header(API_KEY_HEADER) apiKey: String,
+        @Query("filename") filename: String,
+        @Body file: RequestBody
+    ): Response<UploadResponse>
 }

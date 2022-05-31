@@ -11,8 +11,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import me.kofesst.android.redminecomposeapp.data.model.CustomFieldDto
+import me.kofesst.android.redminecomposeapp.data.model.attachment.UploadDataDto
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.model.Issue
+import me.kofesst.android.redminecomposeapp.domain.model.UploadData
 import me.kofesst.android.redminecomposeapp.domain.usecase.UseCases
 import me.kofesst.android.redminecomposeapp.domain.util.UserHolder
 import me.kofesst.android.redminecomposeapp.domain.util.ValidationResult
@@ -114,6 +117,16 @@ class CreateEditIssueViewModel @Inject constructor(
             is IssueFormEvent.ChangesNotesChanged -> {
                 formState = formState.copy(changesNotes = event.notes)
             }
+            is IssueFormEvent.AttachmentAdded -> {
+                formState = formState.copy(
+                    attachments = (formState.attachments + event.attachment).toMutableList()
+                )
+            }
+            is IssueFormEvent.AttachmentRemoved -> {
+                formState = formState.copy(
+                    attachments = (formState.attachments - event.attachment).toMutableList()
+                )
+            }
             is IssueFormEvent.Submit -> {
                 onDataSubmit()
             }
@@ -151,6 +164,14 @@ class CreateEditIssueViewModel @Inject constructor(
                     }
                 }
             ) {
+                val uploads = formState.attachments.map {
+                    UploadDataDto(
+                        token = useCases.uploadFile(it.file, it.type),
+                        fileName = it.file.name,
+                        type = it.type
+                    )
+                }
+
                 val issue = Issue(
                     projectId = projectId,
                     subject = formState.subject,
@@ -158,18 +179,33 @@ class CreateEditIssueViewModel @Inject constructor(
                     assignedTo = formState.assignedTo,
                     priority = formState.priority!!,
                     tracker = formState.tracker!!,
-                    status = formState.status!!,
-                    deadline = formState.deadline
+                    status = formState.status ?: IdName(1, ""),
+                    customFields = listOf(
+                        CustomFieldDto.getDeadline(formState.deadline).toCustomField()
+                    )
                 )
 
                 editing.value?.run {
                     useCases.updateIssue(
                         issueId = this.id,
                         issue = issue,
+                        attachments = uploads.map {
+                            UploadData(
+                                token = it.token,
+                                fileName = it.fileName,
+                                type = it.type
+                            )
+                        },
                         notes = formState.changesNotes
                     )
                 } ?: kotlin.run {
-                    useCases.createIssue(issue)
+                    useCases.createIssue(issue, uploads.map {
+                        UploadData(
+                            token = it.token,
+                            fileName = it.fileName,
+                            type = it.type
+                        )
+                    })
                 }
             }
         }

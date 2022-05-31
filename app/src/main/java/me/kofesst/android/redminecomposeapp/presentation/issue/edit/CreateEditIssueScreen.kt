@@ -1,5 +1,6 @@
 package me.kofesst.android.redminecomposeapp.presentation.issue.edit
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.content.Context
 import androidx.compose.foundation.layout.*
@@ -17,17 +18,19 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.domain.util.parseDeadlineString
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
 import me.kofesst.android.redminecomposeapp.ui.component.DropdownItem
+import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineTextField
 import java.util.*
@@ -36,9 +39,11 @@ import java.util.*
 fun CreateEditIssueScreen(
     issueId: Int,
     projectId: Int,
-    navController: NavController,
     viewModel: CreateEditIssueViewModel = hiltViewModel(),
 ) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.loadDetails(issueId, projectId)
         viewModel.validationEvents.collect { event ->
@@ -51,7 +56,7 @@ fun CreateEditIssueScreen(
     }
 
     val loadingState by viewModel.loadingState
-    LoadingHandler(viewModel)
+    LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
     if (isLoading) {
@@ -117,6 +122,11 @@ fun CreateEditIssueScreen(
                     viewModel = viewModel
                 )
             }
+            AttachmentsSection(
+                formState = formState,
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxWidth()
+            )
             Spacer(modifier = Modifier.height(10.dp))
             ExtendedFloatingActionButton(
                 onClick = {
@@ -136,6 +146,97 @@ fun CreateEditIssueScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+    }
+}
+
+@Composable
+fun AttachmentsSection(
+    formState: IssueFormState,
+    viewModel: CreateEditIssueViewModel,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+
+    val selectFileRequester = rememberFilePicker {
+        val contentUri = it.data ?: return@rememberFilePicker
+        if (contentUri.path == null) return@rememberFilePicker
+
+        val file = FileUtils.getFile(context, contentUri) ?: return@rememberFilePicker
+        val type = getFileMimeType(file.path)
+
+        viewModel.onFormEvent(
+            IssueFormEvent.AttachmentAdded(
+                attachment = FileData(
+                    file = file,
+                    type = type
+                )
+            )
+        )
+    }
+
+    val storageRequester = rememberPermissionLauncher {
+        selectFileRequester.launch(filePickerIntent)
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = modifier
+    ) {
+        formState.attachments.forEach { attachment ->
+            AttachmentItem(
+                attachment = attachment,
+                onDeleteClick = {
+                    viewModel.onFormEvent(
+                        IssueFormEvent.AttachmentRemoved(attachment)
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+    TextButton(
+        onClick = {
+            if (hasStoragePermission) {
+                selectFileRequester.launch(filePickerIntent)
+            } else {
+                storageRequester.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(
+            text = "Добавить вложение",
+            style = MaterialTheme.typography.body1
+        )
+    }
+}
+
+@Composable
+fun AttachmentItem(
+    attachment: FileData,
+    modifier: Modifier = Modifier,
+    onDeleteClick: () -> Unit = {},
+) {
+    RedmineCard(modifier = modifier) {
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(13.dp)
+        ) {
+            Text(
+                text = attachment.file.name,
+                style = MaterialTheme.typography.body1
+            )
+            TextButton(onClick = onDeleteClick) {
+                Text(
+                    text = "Открепить",
+                    style = MaterialTheme.typography.button,
+                    textAlign = TextAlign.End,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -270,6 +371,29 @@ fun DeadlineField(
             isReadOnly = true,
             label = "Дедлайн",
             leadingIcon = painterResource(R.drawable.ic_date_24),
+            trailingIcon = if (formState.deadline != null) {
+                painterResource(R.drawable.ic_clear_24)
+            } else {
+                painterResource(R.drawable.ic_date_24)
+            },
+            onTrailingIconClick = {
+                if (formState.deadline != null) {
+                    viewModel.onFormEvent(
+                        IssueFormEvent.DeadlineChanged(null)
+                    )
+                } else {
+                    showDatePicker(
+                        context = context,
+                        selected = formState.deadline
+                    ) { deadline ->
+                        viewModel.onFormEvent(
+                            IssueFormEvent.DeadlineChanged(
+                                deadline = deadline
+                            )
+                        )
+                    }
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .focusRequester(focusRequester)
@@ -289,23 +413,6 @@ fun DeadlineField(
                     localFocusManager.clearFocus(force = true)
                 }
         )
-        formState.deadline?.run {
-            TextButton(
-                onClick = {
-                    viewModel.onFormEvent(
-                        IssueFormEvent.DeadlineChanged(
-                            deadline = null
-                        )
-                    )
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = "Удалить",
-                    style = MaterialTheme.typography.body2
-                )
-            }
-        }
     }
 }
 

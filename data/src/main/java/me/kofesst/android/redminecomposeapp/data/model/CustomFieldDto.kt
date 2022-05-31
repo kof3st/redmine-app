@@ -28,7 +28,7 @@ data class CustomFieldDto(
         fun getDeadline(date: Date?) = CustomFieldDto(
             id = 10,
             name = "Deadline",
-            value = date?.format("yyyy-MM-dd")
+            value = date?.format("yyyy-MM-dd") ?: ""
         )
     }
 

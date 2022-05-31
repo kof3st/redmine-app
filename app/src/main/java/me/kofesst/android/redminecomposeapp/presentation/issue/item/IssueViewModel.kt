@@ -6,12 +6,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.model.Issue
 import me.kofesst.android.redminecomposeapp.domain.usecase.UseCases
+import me.kofesst.android.redminecomposeapp.domain.util.UserHolder
 import me.kofesst.android.redminecomposeapp.presentation.ViewModelBase
 import javax.inject.Inject
 
 @HiltViewModel
 class IssueViewModel @Inject constructor(
     private val useCases: UseCases,
+    val userHolder: UserHolder,
 ) : ViewModelBase() {
     private val _issue = MutableStateFlow<Issue?>(null)
     val issue get() = _issue.asStateFlow()

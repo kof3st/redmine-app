@@ -21,6 +21,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
 import me.kofesst.android.redminecomposeapp.domain.model.Issue
+import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.issue.SortFilterEvent
 import me.kofesst.android.redminecomposeapp.presentation.util.*
@@ -30,16 +31,16 @@ import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
 
 @Composable
-fun IssuesScreen(
-    viewModel: IssuesViewModel,
-    navController: NavController,
-) {
+fun IssuesScreen(viewModel: IssuesViewModel) {
+    val appState = LocalAppState.current
+    val navController = appState.navController
+
     LaunchedEffect(key1 = true) {
         viewModel.refreshData()
     }
 
     val loadingState by viewModel.loadingState
-    LoadingHandler(viewModel)
+    LoadingHandler(loadingState, appState.scaffoldState.snackbarHostState)
 
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
