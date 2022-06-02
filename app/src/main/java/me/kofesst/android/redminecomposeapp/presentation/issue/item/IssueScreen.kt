@@ -78,32 +78,65 @@ fun IssueScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(20.dp)
+                                .padding(vertical = 20.dp)
                         ) {
-                            HeaderSection(issue)
-                            Divider(modifier = Modifier.padding(vertical = 10.dp))
-                            DetailsSection(issue)
+                            HeaderSection(
+                                issue = issue,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                            )
+                            Divider(
+                                modifier = Modifier
+                                    .padding(vertical = 10.dp)
+                                    .padding(horizontal = 20.dp)
+                            )
+                            DetailsSection(
+                                issue = issue,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 20.dp)
+                            )
                             if (issue.attachments.isNotEmpty()) {
-                                Divider(modifier = Modifier.padding(vertical = 10.dp))
+                                Divider(
+                                    modifier = Modifier
+                                        .padding(vertical = 10.dp)
+                                        .padding(horizontal = 20.dp)
+                                )
                                 AttachmentsSection(
                                     issue = issue,
-                                    apiKey = viewModel.userHolder.apiKey
+                                    apiKey = viewModel.userHolder.apiKey,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             }
                             if (issue.children.isNotEmpty()) {
-                                Divider(modifier = Modifier.padding(vertical = 10.dp))
+                                Divider(
+                                    modifier = Modifier
+                                        .padding(vertical = 10.dp)
+                                        .padding(horizontal = 20.dp)
+                                )
                                 ChildrenSection(
                                     children = issue.children,
-                                    navController = navController
+                                    navController = navController,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp)
                                 )
                             }
                             if (issue.journals.isNotEmpty()) {
-                                Divider(modifier = Modifier.padding(vertical = 10.dp))
+                                Divider(
+                                    modifier = Modifier
+                                        .padding(vertical = 10.dp)
+                                        .padding(horizontal = 20.dp)
+                                )
                                 JournalsSection(
                                     issue = issue,
                                     statuses = statuses,
                                     priorities = priorities,
-                                    trackers = trackers
+                                    trackers = trackers,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 20.dp)
                                 )
                             }
                         }
@@ -137,10 +170,11 @@ fun JournalsSection(
     statuses: List<IdName>,
     priorities: List<IdName>,
     trackers: List<IdName>,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         issue.journals
             .sortedByDescending { it.id }
@@ -209,10 +243,11 @@ fun JournalItem(
 fun ChildrenSection(
     children: List<IdName>,
     navController: NavController,
+    modifier: Modifier = Modifier,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         children.forEach { child ->
             RedmineCard(
@@ -237,22 +272,31 @@ fun ChildrenSection(
 fun AttachmentsSection(
     issue: Issue,
     apiKey: String,
+    modifier: Modifier = Modifier,
 ) {
     val uriHandler = LocalUriHandler.current
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(110.dp)
+        modifier = modifier.height(110.dp)
     ) {
-        itemsIndexed(issue.attachments) { _, attachment ->
+        itemsIndexed(issue.attachments) { index, attachment ->
+            var itemModifier = Modifier
+                .fillMaxHeight()
+                .width(300.dp)
+
+            if (index == 0) {
+                itemModifier = itemModifier.then(Modifier.padding(start = 20.dp))
+            }
+
+            if (index + 1 == issue.attachments.size) {
+                itemModifier = itemModifier.then(Modifier.padding(end = 20.dp))
+            }
+
             AttachmentItem(
                 attachment = attachment,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .width(300.dp)
+                modifier = itemModifier
             ) {
                 uriHandler.openUri(attachment.getDownloadLink(apiKey))
             }
@@ -329,17 +373,21 @@ fun AttachmentTypeBox(
         Text(
             text = extension,
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.align(Alignment.Center),
-            fontWeight = FontWeight.Black
+            fontWeight = FontWeight.Black,
+            color = MaterialTheme.colors.onPrimary,
+            modifier = Modifier.align(Alignment.Center)
         )
     }
 }
 
 @Composable
-fun DetailsSection(issue: Issue) {
+fun DetailsSection(
+    issue: Issue,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         DetailsRow(name = "Автор", value = issue.author.name)
         DetailsRow(name = "Исполнитель", value = issue.assignedTo?.name ?: "нет")
@@ -374,10 +422,13 @@ fun DetailsRow(name: String, value: String) {
 }
 
 @Composable
-fun HeaderSection(issue: Issue) {
+fun HeaderSection(
+    issue: Issue,
+    modifier: Modifier = Modifier,
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(5.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier
     ) {
         Text(
             text = issue.subject,
