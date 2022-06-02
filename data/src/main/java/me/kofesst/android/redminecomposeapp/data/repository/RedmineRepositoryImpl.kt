@@ -25,7 +25,6 @@ import retrofit2.Converter
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
 import java.net.UnknownHostException
 import java.util.*
 
@@ -144,14 +143,18 @@ class RedmineRepositoryImpl(
         }.memberships.map { it.toMember() }
     }
 
-    override suspend fun uploadFile(file: File, type: String): String {
+    override suspend fun uploadFile(
+        fileContent: ByteArray,
+        fileName: String,
+        type: String,
+    ): String {
         return handleResponse(userHolder.host) { api ->
             val requestFile = RequestBody.create(
                 MediaType.parse(type),
-                file
+                fileContent
             )
 
-            api.uploadFile(userHolder.apiKey, file.name, requestFile)
+            api.uploadFile(userHolder.apiKey, fileName, requestFile)
         }.upload.token
     }
 

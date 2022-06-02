@@ -7,7 +7,7 @@ class UploadFile(
     private val repository: RedmineRepository
 ) {
 
-    suspend operator fun invoke(file: File, type: String): String {
-        return repository.uploadFile(file, type)
+    suspend operator fun invoke(fileContent: ByteArray, fileName: String, type: String): String {
+        return repository.uploadFile(fileContent, fileName, type)
     }
 }

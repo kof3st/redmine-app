@@ -166,8 +166,8 @@ class CreateEditIssueViewModel @Inject constructor(
             ) {
                 val uploads = formState.attachments.map {
                     UploadDataDto(
-                        token = useCases.uploadFile(it.file, it.type),
-                        fileName = it.file.name,
+                        token = useCases.uploadFile(it.fileContent, it.fileName, it.type),
+                        fileName = it.fileName,
                         type = it.type
                     )
                 }

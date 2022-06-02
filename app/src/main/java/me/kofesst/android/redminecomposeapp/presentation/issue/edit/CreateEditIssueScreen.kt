@@ -29,6 +29,7 @@ import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.presentation.util.ValidationEvent
+import me.kofesst.android.redminecomposeapp.presentation.util.activity
 import me.kofesst.android.redminecomposeapp.ui.component.DropdownItem
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
@@ -157,18 +158,23 @@ fun AttachmentsSection(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val resolver = context.activity?.contentResolver ?: return
 
     val selectFileRequester = rememberFilePicker {
         val contentUri = it.data ?: return@rememberFilePicker
-        if (contentUri.path == null) return@rememberFilePicker
+        val inputStream = resolver.openInputStream(contentUri) ?: return@rememberFilePicker
+        val fileContent = inputStream.readBytes()
 
-        val file = FileUtils.getFile(context, contentUri) ?: return@rememberFilePicker
-        val type = getFileMimeType(file.path)
+        val fileName = getFileName(contentUri, resolver)
+        val extension = fileName.fileExtension
+        val type = getFileMimeType(extension)
 
         viewModel.onFormEvent(
             IssueFormEvent.AttachmentAdded(
                 attachment = FileData(
-                    file = file,
+                    fileContent = fileContent,
+                    extension = extension,
+                    fileName = fileName,
                     type = type
                 )
             )
@@ -226,7 +232,7 @@ fun AttachmentItem(
             modifier = Modifier.padding(13.dp)
         ) {
             Text(
-                text = attachment.file.name,
+                text = attachment.fileName,
                 style = MaterialTheme.typography.body1
             )
             TextButton(onClick = onDeleteClick) {

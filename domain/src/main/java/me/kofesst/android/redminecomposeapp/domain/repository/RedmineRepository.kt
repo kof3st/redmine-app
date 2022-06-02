@@ -1,7 +1,6 @@
 package me.kofesst.android.redminecomposeapp.domain.repository
 
 import me.kofesst.android.redminecomposeapp.domain.model.*
-import java.io.File
 
 interface RedmineRepository {
 
@@ -30,7 +29,7 @@ interface RedmineRepository {
 
     suspend fun getMembers(projectId: Int): List<ProjectMember>
 
-    suspend fun uploadFile(file: File, type: String): String
+    suspend fun uploadFile(fileContent: ByteArray, fileName: String, type: String): String
 
     suspend fun addAccount(account: Account)
 
