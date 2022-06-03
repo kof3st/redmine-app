@@ -9,7 +9,6 @@ import me.kofesst.android.redminecomposeapp.data.model.project.ProjectsResponse
 import me.kofesst.android.redminecomposeapp.data.model.status.StatusesResponse
 import me.kofesst.android.redminecomposeapp.data.model.tracker.TrackersResponse
 import me.kofesst.android.redminecomposeapp.data.model.user.UserResponse
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -29,23 +28,15 @@ interface RedmineApi {
         @Header(API_KEY_HEADER) apiKey: String,
     ): Response<ProjectsResponse>
 
-    @GET("/issues.json?status_id=*")
-    suspend fun getProjectIssues(
+    @GET("/issues.json")
+    suspend fun getIssues(
         @Header(API_KEY_HEADER) apiKey: String,
-        @Query("project_id") projectId: Int,
+        @Query("project_id") projectId: Int? = null,
+        @Query("tracker_id") trackerId: Int? = null,
+        @Query("status_id") statusId: Int? = null,
+        @Query("sort") sortState: String? = null,
         @Query("offset") offset: Int,
-    ): Response<IssuesResponse>
-
-    @GET("/issues.json?status_id=*&author_id=me")
-    suspend fun getOwnedIssues(
-        @Header(API_KEY_HEADER) apiKey: String,
-        @Query("offset") offset: Int,
-    ): Response<IssuesResponse>
-
-    @GET("/issues.json?status_id=open&assigned_to_id=me")
-    suspend fun getAssignedIssues(
-        @Header(API_KEY_HEADER) apiKey: String,
-        @Query("offset") offset: Int,
+        @Query("limit") limit: Int,
     ): Response<IssuesResponse>
 
     @GET("/issues/{issueId}.json?include=children,attachments,journals")
@@ -90,6 +81,6 @@ interface RedmineApi {
     suspend fun uploadFile(
         @Header(API_KEY_HEADER) apiKey: String,
         @Query("filename") filename: String,
-        @Body file: RequestBody
+        @Body file: RequestBody,
     ): Response<UploadResponse>
 }

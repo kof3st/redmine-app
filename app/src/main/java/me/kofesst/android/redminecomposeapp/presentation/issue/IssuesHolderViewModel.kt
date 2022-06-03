@@ -5,21 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import me.kofesst.android.redminecomposeapp.domain.model.IdName
-import me.kofesst.android.redminecomposeapp.domain.model.Issue
 import me.kofesst.android.redminecomposeapp.domain.usecase.UseCases
 import me.kofesst.android.redminecomposeapp.presentation.ViewModelBase
 import me.kofesst.android.redminecomposeapp.presentation.util.IssueFilterState
 import me.kofesst.android.redminecomposeapp.presentation.util.IssueSortState
-import me.kofesst.android.redminecomposeapp.presentation.util.OrderType
 
 abstract class IssuesHolderViewModel(
     protected val useCases: UseCases,
 ) : ViewModelBase() {
-    protected abstract val source: List<Issue>
-
-    private val _filteredIssues = MutableStateFlow<List<Issue>>(listOf())
-    val issues get() = _filteredIssues.asStateFlow()
-
     private val _trackers = MutableStateFlow<List<IdName>>(listOf())
     val trackers get() = _trackers.asStateFlow()
 
@@ -46,46 +39,27 @@ abstract class IssuesHolderViewModel(
                 _filterState.value = event.filterState
             }
         }
-        sortFilterIssues()
     }
 
-    protected fun sortFilterIssues() {
-        var filtered = when (sortState.value) {
-            is IssueSortState.ById -> {
-                when (sortState.value.orderType) {
-                    is OrderType.Ascending -> {
-                        source.sortedBy { it.id }
-                    }
-                    is OrderType.Descending -> {
-                        source.sortedByDescending { it.id }
-                    }
-                }
-            }
-            is IssueSortState.ByPriority -> {
-                when (sortState.value.orderType) {
-                    is OrderType.Ascending -> {
-                        source.sortedBy { it.priority.id }
-                    }
-                    is OrderType.Descending -> {
-                        source.sortedByDescending { it.priority.id }
-                    }
-                }
-            }
+    protected fun getFilterTrackerId(): Int? =
+        if (filterState.value is IssueFilterState.ByTracker) {
+            getFilterStateTarget()?.id
+        } else {
+            null
         }
 
-        filterState.value?.also { state ->
-            state.item?.also {
-                filtered = when (state) {
-                    is IssueFilterState.ByTracker -> {
-                        filtered.filter { it.tracker.id == state.tracker!!.id }
-                    }
-                    is IssueFilterState.ByStatus -> {
-                        filtered.filter { it.status.id == state.status!!.id }
-                    }
-                }
-            }
-        }
-
-        _filteredIssues.value = filtered
+    protected fun getFilterStatusId(): Int? = if (filterState.value is IssueFilterState.ByStatus) {
+        getFilterStateTarget()?.id
+    } else {
+        null
     }
+
+    private fun getFilterStateTarget() = if (filterState.value!!.item == null) {
+        null
+    }
+    else {
+        filterState.value!!.item as IdName
+    }
+
+    protected fun getApiSortState() = sortState.value.toApiState()
 }

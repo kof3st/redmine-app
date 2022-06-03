@@ -8,11 +8,14 @@ interface RedmineRepository {
 
     suspend fun getProjects(): List<Project>
 
-    suspend fun getProjectIssues(projectId: Int, offset: Int): ItemsPage<Issue>
-
-    suspend fun getOwnedIssues(offset: Int): ItemsPage<Issue>
-
-    suspend fun getAssignedIssues(offset: Int): ItemsPage<Issue>
+    suspend fun getIssues(
+        projectId: Int? = null,
+        trackerId: Int? = null,
+        statusId: Int? = null,
+        sortState: String? = null,
+        offset: Int,
+        limit: Int,
+    ): ItemsPage<Issue>
 
     suspend fun getIssueDetails(issueId: Int): Issue
 

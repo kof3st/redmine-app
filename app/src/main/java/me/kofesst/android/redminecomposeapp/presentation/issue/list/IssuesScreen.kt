@@ -89,6 +89,7 @@ fun IssuesScreen(viewModel: IssuesViewModel) {
                             sortState = it
                         )
                     )
+                    viewModel.refreshData()
                 },
                 filterState = filterState,
                 onFilterStateChanged = {
@@ -97,6 +98,7 @@ fun IssuesScreen(viewModel: IssuesViewModel) {
                             filterState = it
                         )
                     )
+                    viewModel.refreshData()
                 },
                 trackers = trackers,
                 statuses = statuses
@@ -106,13 +108,6 @@ fun IssuesScreen(viewModel: IssuesViewModel) {
             }
             IssuesColumn(
                 issues = issues,
-                onEndReached = {
-                    if (loadingState.state != LoadingResult.State.RUNNING &&
-                        viewModel.shouldLoadMore
-                    ) {
-                        viewModel.loadNextPage()
-                    }
-                },
                 navController = navController
             )
         }

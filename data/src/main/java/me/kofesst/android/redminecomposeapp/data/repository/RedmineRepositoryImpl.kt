@@ -52,33 +52,22 @@ class RedmineRepositoryImpl(
         }.projects.map { it.toProject() }
     }
 
-    @Throws(Exception::class)
-    override suspend fun getProjectIssues(projectId: Int, offset: Int): ItemsPage<Issue> {
+    override suspend fun getIssues(
+        projectId: Int?,
+        trackerId: Int?,
+        statusId: Int?,
+        sortState: String?,
+        offset: Int,
+        limit: Int
+    ): ItemsPage<Issue> {
         return handleResponse(userHolder.host) { api ->
-            api.getProjectIssues(
+            api.getIssues(
                 apiKey = userHolder.apiKey,
-                projectId = projectId,
-                offset = offset
-            )
-        }.toPage()
-    }
-
-    @Throws(Exception::class)
-    override suspend fun getOwnedIssues(offset: Int): ItemsPage<Issue> {
-        return handleResponse(userHolder.host) { api ->
-            api.getOwnedIssues(
-                apiKey = userHolder.apiKey,
-                offset = offset
-            )
-        }.toPage()
-    }
-
-    @Throws(Exception::class)
-    override suspend fun getAssignedIssues(offset: Int): ItemsPage<Issue> {
-        return handleResponse(userHolder.host) { api ->
-            api.getAssignedIssues(
-                apiKey = userHolder.apiKey,
-                offset = offset
+                trackerId = trackerId,
+                statusId = statusId,
+                sortState = sortState,
+                offset = offset,
+                limit = limit
             )
         }.toPage()
     }

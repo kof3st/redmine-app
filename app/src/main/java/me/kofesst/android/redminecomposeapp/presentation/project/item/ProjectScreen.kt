@@ -41,7 +41,8 @@ fun ProjectScreen(
 
     val isLoading = loadingState.state == LoadingResult.State.RUNNING
 
-    val issues by viewModel.issues.collectAsState()
+    val pages by viewModel.issues.collectAsState()
+    val issues = pages?.items ?: listOf()
 
     val sortState by viewModel.sortState
     val filterState by viewModel.filterState
@@ -67,6 +68,7 @@ fun ProjectScreen(
                                 sortState = it
                             )
                         )
+                        viewModel.refreshData(projectId)
                     },
                     filterState = filterState,
                     onFilterStateChanged = {
@@ -75,6 +77,7 @@ fun ProjectScreen(
                                 filterState = it
                             )
                         )
+                        viewModel.refreshData(projectId)
                     },
                     trackers = trackers,
                     statuses = statuses
