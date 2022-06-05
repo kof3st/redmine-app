@@ -228,9 +228,11 @@ fun BottomNavigationBar(
                 BottomNavigationItem(
                     selected = selected,
                     onClick = {
-                        navController.navigate(screen.route) {
-                            if (screen.hasBottomBar) {
-                                popUpToTop(navController)
+                        if (!selected) {
+                            navController.navigate(screen.route) {
+                                if (screen.hasBottomBar) {
+                                    popUpToTop(navController)
+                                }
                             }
                         }
                     },
