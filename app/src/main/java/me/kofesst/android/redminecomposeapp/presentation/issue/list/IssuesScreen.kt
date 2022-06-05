@@ -25,10 +25,7 @@ import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
 import me.kofesst.android.redminecomposeapp.presentation.Screen
 import me.kofesst.android.redminecomposeapp.presentation.issue.SortFilterEvent
 import me.kofesst.android.redminecomposeapp.presentation.util.*
-import me.kofesst.android.redminecomposeapp.ui.component.DropdownItem
-import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
-import me.kofesst.android.redminecomposeapp.ui.component.RedmineDropdown
-import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
+import me.kofesst.android.redminecomposeapp.ui.component.*
 
 @Composable
 fun IssuesScreen(viewModel: IssuesViewModel) {
@@ -319,25 +316,30 @@ fun IssuesColumn(
     onEndReached: () -> Unit = {},
     navController: NavController,
 ) {
-    LazyColumn(
-        state = rememberLazyListState(),
-        modifier = Modifier.fillMaxSize()
+    SourceHandler(
+        source = issues,
+        emptySourceTextRes = R.string.empty_issues
     ) {
-        itemsIndexed(issues) { index, issue ->
-            if (index == issues.lastIndex) {
-                onEndReached()
-            }
-
-            IssueItem(
-                issue = issue,
-                onItemClick = {
-                    navController.navigate(
-                        Screen.Issue.withArgs(
-                            "issueId" to issue.id
-                        )
-                    )
+        LazyColumn(
+            state = rememberLazyListState(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            itemsIndexed(issues) { index, issue ->
+                if (index == issues.lastIndex) {
+                    onEndReached()
                 }
-            )
+
+                IssueItem(
+                    issue = issue,
+                    onItemClick = {
+                        navController.navigate(
+                            Screen.Issue.withArgs(
+                                "issueId" to issue.id
+                            )
+                        )
+                    }
+                )
+            }
         }
     }
 }

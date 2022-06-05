@@ -13,7 +13,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import me.kofesst.android.redminecomposeapp.R
 import me.kofesst.android.redminecomposeapp.domain.model.Project
 import me.kofesst.android.redminecomposeapp.domain.util.formatDate
 import me.kofesst.android.redminecomposeapp.presentation.LocalAppState
@@ -22,6 +24,7 @@ import me.kofesst.android.redminecomposeapp.presentation.util.LoadingHandler
 import me.kofesst.android.redminecomposeapp.presentation.util.LoadingResult
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineCard
 import me.kofesst.android.redminecomposeapp.ui.component.RedmineSwipeRefresh
+import me.kofesst.android.redminecomposeapp.ui.component.SourceHandler
 
 @Composable
 fun ProjectsScreen(viewModel: ProjectsViewModel) {
@@ -47,18 +50,34 @@ fun ProjectsScreen(viewModel: ProjectsViewModel) {
             onRefresh = { viewModel.refreshData() },
             modifier = Modifier.fillMaxSize()
         ) {
-            LazyColumn(
-                state = rememberLazyListState(),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                itemsIndexed(projects) { _, project ->
-                    ProjectItem(project) {
-                        navController.navigate(
-                            Screen.Project.withArgs(
-                                "projectId" to project.id
-                            )
+            ProjectsList(
+                projects = projects,
+                navController = navController
+            )
+        }
+    }
+}
+
+@Composable
+fun ProjectsList(
+    projects: List<Project>,
+    navController: NavController,
+) {
+    SourceHandler(
+        source = projects,
+        emptySourceTextRes = R.string.empty_projects
+    ) {
+        LazyColumn(
+            state = rememberLazyListState(),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            itemsIndexed(projects) { _, project ->
+                ProjectItem(project) {
+                    navController.navigate(
+                        Screen.Project.withArgs(
+                            "projectId" to project.id
                         )
-                    }
+                    )
                 }
             }
         }
