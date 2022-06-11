@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import me.kofesst.android.redminecomposeapp.R
@@ -55,7 +56,7 @@ fun CreateEditAccountScreen(
                 value = formState.name,
                 onValueChange = { viewModel.onFormEvent(AccountFormEvent.NameChanged(it)) },
                 errorMessage = formState.nameError,
-                label = "Название",
+                label = stringResource(id = R.string.object_name),
                 leadingIcon = painterResource(R.drawable.ic_short_text_24),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -63,7 +64,7 @@ fun CreateEditAccountScreen(
                 value = formState.host,
                 onValueChange = { viewModel.onFormEvent(AccountFormEvent.HostChanged(it)) },
                 errorMessage = formState.hostError,
-                label = "Хост",
+                label = stringResource(id = R.string.host),
                 leadingIcon = painterResource(R.drawable.ic_host_24),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -71,7 +72,7 @@ fun CreateEditAccountScreen(
                 value = formState.apiKey,
                 onValueChange = { viewModel.onFormEvent(AccountFormEvent.ApiKeyChanged(it)) },
                 errorMessage = formState.apiKeyError,
-                label = "API-ключ",
+                label = stringResource(id = R.string.api_key),
                 leadingIcon = painterResource(R.drawable.ic_api_key_24),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -82,7 +83,7 @@ fun CreateEditAccountScreen(
                 },
                 text = {
                     Text(
-                        text = "Сохранить",
+                        text = stringResource(id = R.string.save),
                         style = MaterialTheme.typography.body1
                     )
                 },
@@ -101,7 +102,7 @@ fun CreateEditAccountScreen(
                     },
                     text = {
                         Text(
-                            text = "Удалить",
+                            text = stringResource(id = R.string.delete),
                             style = MaterialTheme.typography.body1
                         )
                     },

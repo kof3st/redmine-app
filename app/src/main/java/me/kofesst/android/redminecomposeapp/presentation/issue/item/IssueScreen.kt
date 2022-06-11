@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -203,7 +204,7 @@ fun JournalItem(
                 .padding(15.dp)
         ) {
             Text(
-                text = "Изменения №${journal.id}",
+                text = stringResource(id = R.string.changes_header, journal.id),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.body1
             )
@@ -389,15 +390,42 @@ fun DetailsSection(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = modifier
     ) {
-        DetailsRow(name = "Автор", value = issue.author.name)
-        DetailsRow(name = "Исполнитель", value = issue.assignedTo?.name ?: "нет")
-        DetailsRow(name = "Статус", value = issue.status.name)
-        DetailsRow(name = "Приоритет", value = issue.priority.name)
-        DetailsRow(name = "Оценочное время", value = issue.estimatedHours.formatHours())
-        DetailsRow(name = "Затраченное время", value = issue.spentHours.formatHours())
-        DetailsRow(name = "Дата начала", value = issue.createdOn.formatDate())
-        DetailsRow(name = "Дата обновления", value = issue.updatedOn.formatDate(showTime = true))
-        DetailsRow(name = "Дедлайн", value = issue.deadline?.formatDate() ?: "нет")
+        DetailsRow(
+            name = stringResource(id = R.string.author),
+            value = issue.author.name
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.assigned_to),
+            value = issue.assignedTo?.name ?: "нет"
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.status),
+            value = issue.status.name
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.priority),
+            value = issue.priority.name
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.estimated_hours),
+            value = issue.estimatedHours.formatHours()
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.spent_hours),
+            value = issue.spentHours.formatHours()
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.start_date),
+            value = issue.createdOn.formatDate()
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.update_date),
+            value = issue.updatedOn.formatDate(showTime = true)
+        )
+        DetailsRow(
+            name = stringResource(id = R.string.deadline),
+            value = issue.deadline?.formatDate() ?: "нет"
+        )
     }
 }
 

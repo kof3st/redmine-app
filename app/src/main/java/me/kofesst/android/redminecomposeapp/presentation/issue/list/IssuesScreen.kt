@@ -130,7 +130,7 @@ fun SortFilterPanelTail(onClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
-                text = "Фильтр",
+                text = stringResource(id = R.string.filter),
                 style = MaterialTheme.typography.body1
             )
         }
@@ -186,7 +186,7 @@ fun FilterStateDropdown(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Фильтрация",
+            text = stringResource(id = R.string.filter_function),
             style = MaterialTheme.typography.body1
         )
 
@@ -203,7 +203,7 @@ fun FilterStateDropdown(
                     }
                 )
             } + DropdownItem(
-                text = "Нет",
+                text = stringResource(id = R.string.dropdown_null),
                 onSelected = {
                     onStateChanged(null)
                 }
@@ -211,7 +211,7 @@ fun FilterStateDropdown(
             value = if (filterState != null) {
                 stringResource(filterState.nameRes)
             } else {
-                "Нет"
+                stringResource(id = R.string.dropdown_null)
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -270,7 +270,7 @@ fun SortStateDropdowns(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Сортировка",
+            text = stringResource(id = R.string.sort_function),
             style = MaterialTheme.typography.body1
         )
 
@@ -361,22 +361,26 @@ fun IssueItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "${issue.tracker.name} #${issue.id}",
+                    text = stringResource(
+                        id = R.string.issue_tracker,
+                        issue.tracker.name,
+                        issue.id
+                    ),
                     style = MaterialTheme.typography.body1
                 )
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    text = "Автор: ${issue.author.name}",
+                    text = stringResource(id = R.string.issue_author, issue.author.name),
                     style = MaterialTheme.typography.body1
                 )
                 issue.assignedTo?.run {
                     Text(
-                        text = "Исполнитель: ${this.name}",
+                        text = stringResource(id = R.string.issue_assigned_to, this.name),
                         style = MaterialTheme.typography.body1
                     )
                 }
                 Text(
-                    text = "Статус: ${issue.status.name}",
+                    text = stringResource(id = R.string.issue_status, issue.status.name),
                     style = MaterialTheme.typography.body1
                 )
                 if (issue.priority.id > 4) {
@@ -399,7 +403,7 @@ fun IssuePriority(
     modifier: Modifier = Modifier,
 ) {
     Text(
-        text = "${priority.name} приоритет".uppercase(),
+        text = stringResource(id = R.string.issue_priority, priority.name).uppercase(),
         style = MaterialTheme.typography.body1,
         color = Color.Red,
         textAlign = TextAlign.Center,

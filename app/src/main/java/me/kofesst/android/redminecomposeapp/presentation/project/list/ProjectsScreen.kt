@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -101,7 +102,10 @@ fun ProjectItem(
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Обновлён ${project.updatedOn.formatDate(showTime = true)}",
+                    text = stringResource(
+                        id = R.string.project_update_date,
+                        project.updatedOn.formatDate(showTime = true)
+                    ),
                     style = MaterialTheme.typography.body1
                 )
             }

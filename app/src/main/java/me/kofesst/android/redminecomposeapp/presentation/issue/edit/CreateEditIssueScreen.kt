@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -135,7 +136,7 @@ fun CreateEditIssueScreen(
                 },
                 text = {
                     Text(
-                        text = "Сохранить",
+                        text = stringResource(id = R.string.save),
                         style = MaterialTheme.typography.body1
                     )
                 },
@@ -213,7 +214,7 @@ fun AttachmentsSection(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Добавить вложение",
+            text = stringResource(id = R.string.add_attachment),
             style = MaterialTheme.typography.body1
         )
     }
@@ -237,7 +238,7 @@ fun AttachmentItem(
             )
             TextButton(onClick = onDeleteClick) {
                 Text(
-                    text = "Открепить",
+                    text = stringResource(id = R.string.delete_attachment),
                     style = MaterialTheme.typography.button,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth()
@@ -256,7 +257,7 @@ fun SubjectField(
         value = formState.subject,
         onValueChange = { viewModel.onFormEvent(IssueFormEvent.SubjectChanged(it)) },
         errorMessage = formState.subjectError,
-        label = "Название",
+        label = stringResource(id = R.string.object_name),
         leadingIcon = painterResource(R.drawable.ic_short_text_24),
         modifier = Modifier.fillMaxWidth()
     )
@@ -278,7 +279,7 @@ fun TrackersField(
             )
         },
         value = formState.tracker?.name ?: "",
-        placeholder = "Трекер",
+        placeholder = stringResource(id = R.string.tracker),
         errorMessage = formState.trackerError,
         modifier = Modifier.fillMaxWidth()
     )
@@ -300,7 +301,7 @@ fun PrioritiesField(
             )
         },
         value = formState.priority?.name ?: "",
-        placeholder = "Приоритет",
+        placeholder = stringResource(id = R.string.priority),
         errorMessage = formState.priorityError,
         modifier = Modifier.fillMaxWidth()
     )
@@ -322,7 +323,7 @@ fun AssignedToField(
             )
         },
         value = formState.assignedTo?.name ?: "",
-        placeholder = "Исполнитель",
+        placeholder = stringResource(id = R.string.assigned_to),
         hasNullValue = true,
         onNullValueSelected = {
             viewModel.onFormEvent(IssueFormEvent.AssignedToChanged(null))
@@ -347,7 +348,7 @@ fun StatusesField(
             )
         },
         value = formState.status?.name ?: "",
-        placeholder = "Статус",
+        placeholder = stringResource(id = R.string.status),
         errorMessage = formState.statusError,
         modifier = Modifier.fillMaxWidth()
     )
@@ -375,7 +376,7 @@ fun DeadlineField(
                 )
             },
             isReadOnly = true,
-            label = "Дедлайн",
+            label = stringResource(id = R.string.deadline),
             leadingIcon = painterResource(R.drawable.ic_date_24),
             trailingIcon = if (formState.deadline != null) {
                 painterResource(R.drawable.ic_clear_24)
@@ -458,7 +459,7 @@ fun DescriptionField(
                 )
             )
         },
-        label = "Описание",
+        label = stringResource(id = R.string.description),
         leadingIcon = painterResource(R.drawable.ic_description_24),
         modifier = Modifier.fillMaxWidth()
     )
@@ -478,7 +479,7 @@ fun NotesField(
                 )
             )
         },
-        label = "Описание изменений",
+        label = stringResource(id = R.string.changes_note),
         leadingIcon = painterResource(R.drawable.ic_notes_24),
         modifier = Modifier.fillMaxWidth()
     )
